@@ -2,34 +2,38 @@ import { sizeFormate, formatPlayTime } from '../../index'
 import { createHttpFetch } from './utils'
 import { formatSingerName } from '../utils'
 
-const createGetMusicInfosTask = (ids) => {
-  let list = ids
-  let tasks = []
+const createGetMusicInfosTask = (ids: string[]): Promise<any[]> => {
+  let list: string[] = ids
+  const tasks: string[][] = []
   while (list.length) {
     tasks.push(list.slice(0, 100))
     if (list.length < 100) break
     list = list.slice(100)
   }
   let url = 'https://c.musicapp.migu.cn/MIGUM2.0/v1.0/content/resourceinfo.do?resourceType=2'
-  return Promise.all(tasks.map(task => createHttpFetch(url, {
-    method: 'POST',
-    form: {
-      resourceId: task.join('|'),
-    },
-  }).then(data => data.resource)))
+  return Promise.all(
+    tasks.map((task) =>
+      createHttpFetch(url, {
+        method: 'POST',
+        form: {
+          resourceId: task.join('|'),
+        },
+      }).then((data: any) => data.resource)
+    )
+  )
 }
 
-export const filterMusicInfoList = (rawList) => {
+export const filterMusicInfoList = (rawList: any[]): any[] => {
   // console.log(rawList)
-  let ids = new Set()
-  const list = []
-  rawList.forEach(item => {
+  let ids: Set<string> = new Set()
+  const list: any[] = []
+  rawList.forEach((item: any) => {
     if (!item.songId || ids.has(item.songId)) return
     ids.add(item.songId)
-    const types = []
-    const _types = {}
-    item.newRateFormats?.forEach(type => {
-      let size
+    const types: any[] = []
+    const _types: Record<string, any> = {}
+    item.newRateFormats?.forEach((type: any) => {
+      let size: string
       switch (type.formatType) {
         case 'PQ':
           size = sizeFormate(type.size ?? type.androidSize)
@@ -54,8 +58,8 @@ export const filterMusicInfoList = (rawList) => {
           break
         case 'ZQ':
           size = sizeFormate(type.size ?? type.androidSize)
-          types.push({ type: 'flac24bit', size })
-          _types.flac24bit = {
+          types.push({ type: 'hires', size })
+          _types.hires = {
             size,
           }
           break
@@ -87,17 +91,17 @@ export const filterMusicInfoList = (rawList) => {
   return list
 }
 
-export const filterMusicInfoListV5 = (rawList) => {
+export const filterMusicInfoListV5 = (rawList: any[]): any[] => {
   // console.log(rawList)
-  let ids = new Set()
-  const list = []
-  rawList.forEach(item => {
+  let ids: Set<string> = new Set()
+  const list: any[] = []
+  rawList.forEach((item: any) => {
     if (!item.songId || ids.has(item.songId)) return
     ids.add(item.songId)
-    const types = []
-    const _types = {}
-    item.audioFormats?.forEach(type => {
-      let size
+    const types: any[] = []
+    const _types: Record<string, any> = {}
+    item.audioFormats?.forEach((type: any) => {
+      let size: string
       switch (type.formatType) {
         case 'PQ':
           size = sizeFormate(type.size ?? type.androidSize)
@@ -122,8 +126,8 @@ export const filterMusicInfoListV5 = (rawList) => {
           break
         case 'ZQ':
           size = sizeFormate(type.size ?? type.androidSize)
-          types.push({ type: 'flac24bit', size })
-          _types.flac24bit = {
+          types.push({ type: 'hires', size })
+          _types.hires = {
             size,
           }
           break
@@ -153,10 +157,12 @@ export const filterMusicInfoListV5 = (rawList) => {
   return list
 }
 
-export const getMusicInfo = async(copyrightId) => {
-  return getMusicInfos([copyrightId]).then(data => data[0])
+export const getMusicInfo = async (copyrightId: string): Promise<any> => {
+  return getMusicInfos([copyrightId]).then((data: any[]) => data[0])
 }
 
-export const getMusicInfos = async(copyrightIds) => {
-  return filterMusicInfoList(await Promise.all(createGetMusicInfosTask(copyrightIds)).then(data => data.flat()))
+export const getMusicInfos = async (copyrightIds: string[]): Promise<any[]> => {
+  return filterMusicInfoList(
+    await createGetMusicInfosTask(copyrightIds).then((data: any[][]) => data.flat())
+  )
 }

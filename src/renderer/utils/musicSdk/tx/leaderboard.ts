@@ -2,7 +2,33 @@ import { httpFetch } from '../../request'
 import { formatPlayTime, sizeFormate } from '../../index'
 import { formatSingerName } from '../utils'
 
-let boardList = [{ id: 'tx__4', name: '流行指数榜', bangid: '4' }, { id: 'tx__26', name: '热歌榜', bangid: '26' }, { id: 'tx__27', name: '新歌榜', bangid: '27' }, { id: 'tx__62', name: '飙升榜', bangid: '62' }, { id: 'tx__58', name: '说唱榜', bangid: '58' }, { id: 'tx__57', name: '喜力电音榜', bangid: '57' }, { id: 'tx__28', name: '网络歌曲榜', bangid: '28' }, { id: 'tx__5', name: '内地榜', bangid: '5' }, { id: 'tx__3', name: '欧美榜', bangid: '3' }, { id: 'tx__59', name: '香港地区榜', bangid: '59' }, { id: 'tx__16', name: '韩国榜', bangid: '16' }, { id: 'tx__60', name: '抖快榜', bangid: '60' }, { id: 'tx__29', name: '影视金曲榜', bangid: '29' }, { id: 'tx__17', name: '日本榜', bangid: '17' }, { id: 'tx__52', name: '腾讯音乐人原创榜', bangid: '52' }, { id: 'tx__36', name: 'K歌金曲榜', bangid: '36' }, { id: 'tx__61', name: '台湾地区榜', bangid: '61' }, { id: 'tx__63', name: 'DJ舞曲榜', bangid: '63' }, { id: 'tx__64', name: '综艺新歌榜', bangid: '64' }, { id: 'tx__65', name: '国风热歌榜', bangid: '65' }, { id: 'tx__67', name: '听歌识曲榜', bangid: '67' }, { id: 'tx__72', name: '动漫音乐榜', bangid: '72' }, { id: 'tx__73', name: '游戏音乐榜', bangid: '73' }, { id: 'tx__75', name: '有声榜', bangid: '75' }, { id: 'tx__131', name: '校园音乐人排行榜', bangid: '131' }]
+let boardList: { id: string; name: string; bangid: string }[] = [
+  { id: 'tx__4', name: '流行指数榜', bangid: '4' },
+  { id: 'tx__26', name: '热歌榜', bangid: '26' },
+  { id: 'tx__27', name: '新歌榜', bangid: '27' },
+  { id: 'tx__62', name: '飙升榜', bangid: '62' },
+  { id: 'tx__58', name: '说唱榜', bangid: '58' },
+  { id: 'tx__57', name: '喜力电音榜', bangid: '57' },
+  { id: 'tx__28', name: '网络歌曲榜', bangid: '28' },
+  { id: 'tx__5', name: '内地榜', bangid: '5' },
+  { id: 'tx__3', name: '欧美榜', bangid: '3' },
+  { id: 'tx__59', name: '香港地区榜', bangid: '59' },
+  { id: 'tx__16', name: '韩国榜', bangid: '16' },
+  { id: 'tx__60', name: '抖快榜', bangid: '60' },
+  { id: 'tx__29', name: '影视金曲榜', bangid: '29' },
+  { id: 'tx__17', name: '日本榜', bangid: '17' },
+  { id: 'tx__52', name: '腾讯音乐人原创榜', bangid: '52' },
+  { id: 'tx__36', name: 'K歌金曲榜', bangid: '36' },
+  { id: 'tx__61', name: '台湾地区榜', bangid: '61' },
+  { id: 'tx__63', name: 'DJ舞曲榜', bangid: '63' },
+  { id: 'tx__64', name: '综艺新歌榜', bangid: '64' },
+  { id: 'tx__65', name: '国风热歌榜', bangid: '65' },
+  { id: 'tx__67', name: '听歌识曲榜', bangid: '67' },
+  { id: 'tx__72', name: '动漫音乐榜', bangid: '72' },
+  { id: 'tx__73', name: '游戏音乐榜', bangid: '73' },
+  { id: 'tx__75', name: '有声榜', bangid: '75' },
+  { id: 'tx__131', name: '校园音乐人排行榜', bangid: '131' },
+]
 
 export default {
   limit: 300,
@@ -10,60 +36,60 @@ export default {
     {
       id: 'txlxzsb',
       name: '流行榜',
-      bangid: 4,
+      bangid: '4',
     },
     {
       id: 'txrgb',
       name: '热歌榜',
-      bangid: 26,
+      bangid: '26',
     },
     {
       id: 'txwlhgb',
       name: '网络榜',
-      bangid: 28,
+      bangid: '28',
     },
     {
       id: 'txdyb',
       name: '抖音榜',
-      bangid: 60,
+      bangid: '60',
     },
     {
       id: 'txndb',
       name: '内地榜',
-      bangid: 5,
+      bangid: '5',
     },
     {
       id: 'txxgb',
       name: '香港榜',
-      bangid: 59,
+      bangid: '59',
     },
     {
       id: 'txtwb',
       name: '台湾榜',
-      bangid: 61,
+      bangid: '61',
     },
     {
       id: 'txoumb',
       name: '欧美榜',
-      bangid: 3,
+      bangid: '3',
     },
     {
       id: 'txhgb',
       name: '韩国榜',
-      bangid: 16,
+      bangid: '16',
     },
     {
       id: 'txrbb',
       name: '日本榜',
-      bangid: 17,
+      bangid: '17',
     },
     {
       id: 'txtybb',
       name: 'YouTube榜',
-      bangid: 128,
+      bangid: '128',
     },
   ],
-  listDetailRequest(id, period, limit) {
+  listDetailRequest(id: number, period: string | undefined, limit: number): Promise<any> {
     // console.log(id, period, limit)
     return httpFetch('https://u.y.qq.com/cgi-bin/musicu.fcg', {
       method: 'post',
@@ -90,26 +116,29 @@ export default {
     }).promise
   },
   regExps: {
-    periodList: /<i class="play_cover__btn c_tx_link js_icon_play" data-listkey=".+?" data-listname=".+?" data-tid=".+?" data-date=".+?" .+?<\/i>/g,
+    periodList:
+      /<i class="play_cover__btn c_tx_link js_icon_play" data-listkey=".+?" data-listname=".+?" data-tid=".+?" data-date=".+?" .+?<\/i>/g,
     period: /data-listname="(.+?)" data-tid=".*?\/(.+?)" data-date="(.+?)" .+?<\/i>/,
   },
-  periods: {},
+  periods: {} as Record<string, { name: string; bangid: string; period: string }>,
   periodUrl: 'https://c.y.qq.com/node/pc/wk_v15/top.html',
-  _requestBoardsObj: null,
-  getBoardsData() {
+  _requestBoardsObj: null as any,
+  getBoardsData(): any {
     if (this._requestBoardsObj) this._requestBoardsObj.cancelHttp()
-    this._requestBoardsObj = httpFetch('https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&uin=0&needNewCode=1&platform=h5')
+    this._requestBoardsObj = httpFetch(
+      'https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&uin=0&needNewCode=1&platform=h5'
+    )
     return this._requestBoardsObj.promise
   },
-  getData(url) {
+  getData(url: string): Promise<any> {
     const requestDataObj = httpFetch(url)
     return requestDataObj.promise
   },
-  filterData(rawList) {
+  filterData(rawList: any[]): any[] {
     // console.log(rawList)
-    return rawList.map(item => {
-      let types = []
-      let _types = {}
+    return rawList.map((item: any) => {
+      let types: { type: string; size: string }[] = []
+      let _types: Record<string, { size: string }> = {}
       if (item.file.size_128mp3 !== 0) {
         let size = sizeFormate(item.file.size_128mp3)
         types.push({ type: '128k', size })
@@ -133,8 +162,29 @@ export default {
       }
       if (item.file.size_hires !== 0) {
         let size = sizeFormate(item.file.size_hires)
-        types.push({ type: 'flac24bit', size })
-        _types.flac24bit = {
+        types.push({ type: 'hires', size })
+        _types.hires = {
+          size,
+        }
+      }
+      if (item.file.size_new[1] !== 0) {
+        let size = sizeFormate(item.file.size_new[1])
+        types.push({ type: 'atmos', size })
+        _types.atmos = {
+          size,
+        }
+      }
+      if (item.file.size_new[2] !== 0) {
+        let size = sizeFormate(item.file.size_new[2])
+        types.push({ type: 'atmos_plus', size })
+        _types.atmos_plus = {
+          size,
+        }
+      }
+      if (item.file.size_new[0] !== 0) {
+        let size = sizeFormate(item.file.size_new[0])
+        types.push({ type: 'master', size })
+        _types.master = {
           size,
         }
       }
@@ -150,9 +200,12 @@ export default {
         albumMid: item.album.mid,
         strMediaMid: item.file.media_mid,
         songmid: item.mid,
-        img: (item.album.name === '' || item.album.name === '空')
-          ? item.singer?.length ? `https://y.gtimg.cn/music/photo_new/T001R500x500M000${item.singer[0].mid}.jpg` : ''
-          : `https://y.gtimg.cn/music/photo_new/T002R500x500M000${item.album.mid}.jpg`,
+        img:
+          item.album.name === '' || item.album.name === '空'
+            ? item.singer?.length
+              ? `https://y.gtimg.cn/music/photo_new/T001R500x500M000${item.singer[0].mid}.jpg`
+              : ''
+            : `https://y.gtimg.cn/music/photo_new/T002R500x500M000${item.album.mid}.jpg`,
         lrc: null,
         otherSource: null,
         types,
@@ -161,11 +214,11 @@ export default {
       }
     })
   },
-  getPeriods(bangid) {
-    return this.getData(this.periodUrl).then(({ body: html }) => {
+  getPeriods(bangid: number): Promise<string | undefined> {
+    return this.getData(this.periodUrl).then(({ body: html }: any) => {
       let result = html.match(this.regExps.periodList)
       if (!result) return Promise.reject(new Error('get data failed'))
-      result.forEach(item => {
+      result.forEach((item: string) => {
         let result = item.match(this.regExps.period)
         if (!result) return
         this.periods[result[2]] = {
@@ -178,9 +231,9 @@ export default {
       return info && info.period
     })
   },
-  filterBoardsData(rawList) {
+  filterBoardsData(rawList: any[]): { id: string; name: string; bangid: string }[] {
     // console.log(rawList)
-    let list = []
+    let list: { id: string; name: string; bangid: string }[] = []
     for (const board of rawList) {
       // 排除 MV榜
       if (board.id == 201) continue
@@ -197,7 +250,7 @@ export default {
     }
     return list
   },
-  async getBoards(retryNum = 0) {
+  async getBoards(retryNum: number = 0): Promise<any> {
     // if (++retryNum > 3) return Promise.reject(new Error('try max num'))
     // let response
     // try {
@@ -221,13 +274,13 @@ export default {
       source: 'tx',
     }
   },
-  getList(bangid, page, retryNum = 0) {
+  getList(bangid: string | number, page: number, retryNum: number = 0): Promise<any> {
     if (++retryNum > 3) return Promise.reject(new Error('try max num'))
-    bangid = parseInt(bangid)
+    bangid = parseInt(String(bangid))
     let info = this.periods[bangid]
     let p = info ? Promise.resolve(info.period) : this.getPeriods(bangid)
-    return p.then(period => {
-      return this.listDetailRequest(bangid, period, this.limit).then(resp => {
+    return p.then((period: string | undefined) => {
+      return this.listDetailRequest(bangid, period, this.limit).then((resp: any) => {
         if (resp.body.code !== 0) return this.getList(bangid, page, retryNum)
         return {
           total: resp.body.toplist.data.songInfoList.length,
@@ -240,7 +293,7 @@ export default {
     })
   },
 
-  getDetailPageUrl(id) {
+  getDetailPageUrl(id: string | number): string {
     if (typeof id == 'string') id = id.replace('tx__', '')
     return `https://y.qq.com/n/ryqq/toplist/${id}`
   },

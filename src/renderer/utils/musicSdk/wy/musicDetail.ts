@@ -4,32 +4,46 @@ import { formatPlayTime, sizeFormate } from '../../index'
 // https://github.com/Binaryify/NeteaseCloudMusicApi/blob/master/module/song_detail.js
 
 export default {
-  getSinger(singers) {
-    let arr = []
-    singers?.forEach(singer => {
+  getSinger(singers: any) {
+    let arr: any[] = []
+    singers?.forEach((singer: any) => {
       arr.push(singer.name)
     })
     return arr.join('、')
   },
-  filterList({ songs, privileges }) {
+  filterList({ songs, privileges }: any) {
     // console.log(songs, privileges)
-    const list = []
-    songs.forEach((item, index) => {
-      const types = []
-      const _types = {}
+    const list: any[] = []
+
+    songs.forEach((item: any, index: any) => {
+      const types: any[] = []
+      const _types: Record<string, any> = {}
       let size
       let privilege = privileges[index]
-      if (privilege.id !== item.id) privilege = privileges.find(p => p.id === item.id)
+      if (privilege.id !== item.id) privilege = privileges.find((p: any) => p.id === item.id)
       if (!privilege) return
 
+      if (privilege.maxBrLevel == 'dolby') {
+        types.push({ type: 'dolby', size: null })
+        _types.dolby = {
+          size: null,
+        }
+      }
       if (privilege.maxBrLevel == 'hires') {
         size = item.hr ? sizeFormate(item.hr.size) : null
-        types.push({ type: 'flac24bit', size })
-        _types.flac24bit = {
+        types.push({ type: 'hires', size })
+        _types.hires = {
           size,
         }
       }
       switch (privilege.maxbr) {
+        case 96000:
+          size = item.l ? sizeFormate(item.l.size) : null
+          types.push({ type: '96k', size })
+          _types['96k'] = {
+            size,
+          }
+          break
         case 999000:
           size = item.sq ? sizeFormate(item.sq.size) : null
           types.push({ type: 'flac', size })
@@ -90,17 +104,18 @@ export default {
     // console.log(list)
     return list
   },
-  async getList(ids = [], retryNum = 0) {
+  async getList(ids: any[] = [], retryNum = 0) {
     if (retryNum > 2) return Promise.reject(new Error('try max num'))
 
     const requestObj = httpFetch('https://music.163.com/weapi/v3/song/detail', {
       method: 'post',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
+        'User-Agent':
+          'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
         origin: 'https://music.163.com',
       },
       form: weapi({
-        c: '[' + ids.map(id => ('{"id":' + id + '}')).join(',') + ']',
+        c: '[' + ids.map((id: any) => '{"id":' + id + '}').join(',') + ']',
         ids: '[' + ids.join(',') + ']',
       }),
     })
