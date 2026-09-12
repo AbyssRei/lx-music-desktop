@@ -314,6 +314,16 @@ declare global {
        */
       'playDetail.isDelayScroll': boolean
 
+      /**
+       * 播放详情页-是否启用歌词跃动效果
+       */
+      'playDetail.lyricTextLiftEffect': boolean
+
+      /**
+       * 播放详情页-歌词跃动幅度 (1-20, 对应 0.01em - 0.20em)
+       */
+      'playDetail.lyricTextLiftEffectOffset': number
+
 
       /**
        * 是否启用桌面歌词

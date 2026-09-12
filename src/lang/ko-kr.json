@@ -537,6 +537,8 @@
   "setting__play_detail_font_zoom": "재생 중인 가사 확대",
   "setting__play_detail_lyric_delay_scroll": "가사 스크롤 지연",
   "setting__play_detail_lyric_progress": "가사를 드래그하여 재생 진행 위치 조정 허용",
+  "setting__play_detail_lyric_text_lift": "가사 리프트 효과 활성화",
+  "setting__play_detail_lyric_text_lift_offset": "리프트 폭",
   "setting__play_lyric_lxlrc": "가능한 경우 노래방 스타일 가사로 재생",
   "setting__play_lyric_lxlrc_tip": "이 기능은 높은 성능을 요구하므로 저사양 기기에서는 사용을 권장하지 않습니다!",
   "setting__play_lyric_roma": "가능한 경우 로마자 가사 표시",
