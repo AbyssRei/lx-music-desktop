@@ -204,6 +204,12 @@ export const setDisableAutoPauseBySource = (disabled: boolean, source: string) =
 }
 
 
+export const playAtTime = (time: number) => {
+  // 将歌词定位到指定时间（毫秒），用于拖动进度条时的实时同步
+  lrc.play(time)
+  sendDesktopLyricInfo({ action: 'set_play', data: time })
+}
+
 export const play = () => {
   // if (!musicInfo.lrc) return
   const currentTime = getCurrentTime()
