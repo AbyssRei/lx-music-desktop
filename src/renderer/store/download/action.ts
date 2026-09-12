@@ -147,7 +147,6 @@ const getProxy = () => {
  * @param downloadInfo 下载任务信息
  */
 const saveMeta = (downloadInfo: LX.Download.ListItem) => {
-  if (downloadInfo.metadata.quality === 'ape') return
   const isUseOtherSource = appSetting['download.isUseOtherSource']
   const tasks: [Promise<string | null>, Promise<LX.Player.LyricInfo | null>] = [
     appSetting['download.isEmbedPic']
@@ -194,7 +193,11 @@ const downloadLyric = (downloadInfo: LX.Download.ListItem) => {
     if (lrcs.lyric) {
       lrcs.lyric = fixKgLyric(lrcs.lyric)
       const info = {
-        filePath: downloadInfo.metadata.filePath.substring(0, downloadInfo.metadata.filePath.lastIndexOf('.')) + '.lrc',
+        filePath:
+          downloadInfo.metadata.filePath.substring(
+            0,
+            downloadInfo.metadata.filePath.lastIndexOf('.')
+          ) + '.lrc',
         format: appSetting['download.lrcFormat'],
         downloadLxlrc: appSetting['download.isDownloadLxLrc'],
         downloadTlrc: appSetting['download.isDownloadTLrc'],

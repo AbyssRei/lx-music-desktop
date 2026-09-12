@@ -7,8 +7,8 @@ export default {
    * 获取歌手信息
    * @param {*} id
    */
-  getInfo(id) {
-    return eapiRequest('/api/artist/head/info/get', { id }).then(({ body }) => {
+  getInfo(id: any) {
+    return eapiRequest('/api/artist/head/info/get', { id }).then(({ body }: any) => {
       if (!body || body.code != 200) throw new Error('get singer info faild.')
       return {
         source: 'wy',
@@ -32,13 +32,13 @@ export default {
    * @param {*} page
    * @param {*} limit
    */
-  getSongList(id, page = 1, limit = 100) {
+  getSongList(id: any, page = 1, limit = 100) {
     if (page === 1) page = 0
     return eapiRequest('/api/v2/artist/songs', {
       id,
       limit,
       offset: limit * page,
-    }).then(({ body }) => {
+    }).then(({ body }: any) => {
       if (!body.songs || body.code != 200) throw new Error('get singer song list faild.')
 
       const list = this.filterSongList(body.songs)
@@ -57,12 +57,12 @@ export default {
    * @param {*} page
    * @param {*} limit
    */
-  getAlbumList(id, page = 1, limit = 10) {
+  getAlbumList(id: any, page = 1, limit = 10) {
     if (page === 1) page = 0
     return eapiRequest(`/api/artist/albums/${id}`, {
       limit,
       offset: limit * page,
-    }).then(({ body }) => {
+    }).then(({ body }: any) => {
       if (!body.hotAlbums || body.code != 200) throw new Error('get singer album list faild.')
 
       const list = this.filterAlbumList(body.hotAlbums)
@@ -75,9 +75,9 @@ export default {
       }
     })
   },
-  filterAlbumList(raw) {
-    const list = []
-    raw.forEach(item => {
+  filterAlbumList(raw: any) {
+    const list: any[] = []
+    raw.forEach((item: any) => {
       if (!item.id) return
       list.push({
         id: item.id,
@@ -92,15 +92,15 @@ export default {
     })
     return list
   },
-  filterSongList(raw) {
-    const list = []
-    raw.forEach(item => {
+  filterSongList(raw: any) {
+    const list: any[] = []
+    raw.forEach((item: any) => {
       if (!item.id) return
 
-      const types = []
-      const _types = {}
+      const types: any[] = []
+      const _types: Record<string, any> = {}
       let size
-      item.privilege.chargeInfoList.forEach(i => {
+      item.privilege.chargeInfoList.forEach((i: any) => {
         switch (i.rate) {
           case 128000:
             size = item.lMusic ? sizeFormate(item.lMusic.size) : null
@@ -122,8 +122,8 @@ export default {
             }
           case 1999000:
             size = item.hrMusic ? sizeFormate(item.hrMusic.size) : null
-            types.push({ type: 'flac24bit', size })
-            _types.flac24bit = {
+            types.push({ type: 'hires', size })
+            _types.hires = {
               size,
             }
         }

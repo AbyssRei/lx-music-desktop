@@ -1,8 +1,3 @@
-// https://github.com/Binaryify/NeteaseCloudMusicApi/blob/master/module/playlist_catlist.js
-// https://github.com/Binaryify/NeteaseCloudMusicApi/blob/master/module/playlist_hot.js
-// https://github.com/Binaryify/NeteaseCloudMusicApi/blob/master/module/top_playlist.js
-// https://github.com/Binaryify/NeteaseCloudMusicApi/blob/master/module/playlist_detail.js
-
 import { weapi, linuxapi } from './utils/crypto'
 import { httpFetch } from '../../request'
 import { formatPlayTime, sizeFormate, dateFormat, formatPlayCount } from '../../index'
@@ -11,9 +6,9 @@ import { eapiRequest } from './utils/index'
 import { formatSingerName } from '../utils'
 
 export default {
-  _requestObj_tags: null,
-  _requestObj_hotTags: null,
-  _requestObj_list: null,
+  _requestObj_tags: null as any,
+  _requestObj_hotTags: null as any,
+  _requestObj_list: null as any,
   limit_list: 30,
   limit_song: 100000,
   successCode: 200,
@@ -23,22 +18,20 @@ export default {
       name: '最热',
       id: 'hot',
     },
-    // {
-    //   name: '最新',
-    //   id: 'new',
-    // },
   ],
   regExps: {
     listDetailLink: /^.+(?:\?|&)id=(\d+)(?:&.*$|#.*$|$)/,
     listDetailLink2: /^.+\/playlist\/(\d+)\/\d+\/.+$/,
   },
 
-  async handleParseId(link, retryNum = 0) {
+  async handleParseId(link: any, retryNum = 0): Promise<any> {
     if (retryNum > 2) throw new Error('link try max num')
 
     const requestObj_listDetailLink = httpFetch(link)
-    const { headers: { location }, statusCode } = await requestObj_listDetailLink.promise
-    // console.log(headers)
+    const {
+      headers: { location },
+      statusCode,
+    } = await requestObj_listDetailLink.promise
     if (statusCode > 400) return this.handleParseId(link, ++retryNum)
     const url = location == null ? link : location
     return this.regExps.listDetailLink.test(url)
@@ -46,14 +39,14 @@ export default {
       : url.replace(this.regExps.listDetailLink2, '$1')
   },
 
-  async getListId(id) {
+  async getListId(id: any) {
     let cookie
     if (/###/.test(id)) {
       const [url, token] = id.split('###')
       id = url
       cookie = `MUSIC_U=${token}`
     }
-    if ((/[?&:/]/.test(id))) {
+    if (/[?&:/]/.test(id)) {
       if (this.regExps.listDetailLink.test(id)) {
         id = id.replace(this.regExps.listDetailLink, '$1')
       } else if (this.regExps.listDetailLink2.test(id)) {
@@ -61,11 +54,10 @@ export default {
       } else {
         id = await this.handleParseId(id)
       }
-      // console.log(id)
     }
     return { id, cookie }
   },
-  async getListDetail(rawId, page, tryNum = 0) { // 获取歌曲列表内的音乐
+  async getListDetail(rawId: any, page: any, tryNum = 0): Promise<any> {
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
 
     const { id, cookie } = await this.getListId(rawId)
@@ -74,7 +66,8 @@ export default {
     const requestObj_listDetail = httpFetch('https://music.163.com/api/linux/forward', {
       method: 'post',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
+        'User-Agent':
+          'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36',
         Cookie: this.cookie,
       },
       form: linuxapi({
@@ -88,7 +81,8 @@ export default {
       }),
     })
     const { statusCode, body } = await requestObj_listDetail.promise
-    if (statusCode !== 200 || body.code !== this.successCode) return this.getListDetail(id, page, ++tryNum)
+    if (statusCode !== 200 || body.code !== this.successCode)
+      return this.getListDetail(id, page, ++tryNum)
     let limit = 1000
     let rangeStart = (page - 1) * limit
     // console.log(body)
@@ -97,8 +91,12 @@ export default {
       list = this.filterListDetail(body)
     } else {
       try {
-        list = (await musicDetailApi.getList(body.playlist.trackIds.slice(rangeStart, limit * page).map(trackId => trackId.id))).list
-      } catch (err) {
+        list = (
+          await musicDetailApi.getList(
+            body.playlist.trackIds.slice(rangeStart, limit * page).map((trackId: any) => trackId.id)
+          )
+        ).list
+      } catch (err: any) {
         console.log(err)
         if (err.message == 'try max num') {
           throw err
@@ -123,21 +121,22 @@ export default {
       },
     }
   },
-  filterListDetail({ playlist: { tracks }, privileges }) {
+
+  filterListDetail({ playlist: { tracks }, privileges }: any) {
     // console.log(tracks, privileges)
-    const list = []
-    tracks.forEach((item, index) => {
-      const types = []
-      const _types = {}
+    const list: any[] = []
+    tracks.forEach((item: any, index: any) => {
+      const types: any[] = []
+      const _types: Record<string, any> = {}
       let size
       let privilege = privileges[index]
-      if (privilege.id !== item.id) privilege = privileges.find(p => p.id === item.id)
+      if (privilege.id !== item.id) privilege = privileges.find((p: any) => p.id === item.id)
       if (!privilege) return
 
       if (privilege.maxBrLevel == 'hires') {
         size = item.hr ? sizeFormate(item.hr.size) : null
-        types.push({ type: 'flac24bit', size })
-        _types.flac24bit = {
+        types.push({ type: 'hires', size })
+        _types.hires = {
           size,
         }
       }
@@ -203,21 +202,20 @@ export default {
   },
 
   // 获取列表数据
-  getList(sortId, tagId, page, tryNum = 0) {
+  getList(sortId: any, tagId: any, page: any, tryNum = 0): any {
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     if (this._requestObj_list) this._requestObj_list.cancelHttp()
     this._requestObj_list = httpFetch('https://music.163.com/weapi/playlist/list', {
       method: 'post',
       form: weapi({
-        cat: tagId || '全部', // 全部,华语,欧美,日语,韩语,粤语,小语种,流行,摇滚,民谣,电子,舞曲,说唱,轻音乐,爵士,乡村,R&B/Soul,古典,民族,英伦,金属,朋克,蓝调,雷鬼,世界音乐,拉丁,另类/独立,New Age,古风,后摇,Bossa Nova,清晨,夜晚,学习,工作,午休,下午茶,地铁,驾车,运动,旅行,散步,酒吧,怀旧,清新,浪漫,性感,伤感,治愈,放松,孤独,感动,兴奋,快乐,安静,思念,影视原声,ACG,儿童,校园,游戏,70后,80后,90后,网络歌曲,KTV,经典,翻唱,吉他,钢琴,器乐,榜单,00后
-        order: sortId, // hot,new
+        cat: tagId || '全部',
+        order: sortId,
         limit: this.limit_list,
         offset: this.limit_list * (page - 1),
         total: true,
       }),
     })
-    return this._requestObj_list.promise.then(({ body }) => {
-      // console.log(body)
+    return this._requestObj_list.promise.then(({ body }: any) => {
       if (body.code !== this.successCode) return this.getList(sortId, tagId, page, ++tryNum)
       return {
         list: this.filterList(body.playlists),
@@ -228,9 +226,8 @@ export default {
       }
     })
   },
-  filterList(rawData) {
-    // console.log(rawData)
-    return rawData.map(item => ({
+  filterList(rawData: any) {
+    return rawData.map((item: any) => ({
       play_count: formatPlayCount(item.playCount),
       id: String(item.id),
       author: item.creator.nickname,
@@ -244,7 +241,6 @@ export default {
     }))
   },
 
-  // 获取标签
   getTag(tryNum = 0) {
     if (this._requestObj_tags) this._requestObj_tags.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
@@ -252,14 +248,13 @@ export default {
       method: 'post',
       form: weapi({}),
     })
-    return this._requestObj_tags.promise.then(({ body }) => {
-      // console.log(JSON.stringify(body))
+    return this._requestObj_tags.promise.then(({ body }: any) => {
       if (body.code !== this.successCode) return this.getTag(++tryNum)
       return this.filterTagInfo(body)
     })
   },
-  filterTagInfo({ sub, categories }) {
-    const subList = {}
+  filterTagInfo({ sub, categories }: any) {
+    const subList: Record<string, any> = {}
     for (const item of sub) {
       if (!subList[item.category]) subList[item.category] = []
       subList[item.category].push({
@@ -271,7 +266,7 @@ export default {
       })
     }
 
-    const list = []
+    const list: any[] = []
     for (const key of Object.keys(categories)) {
       list.push({
         name: categories[key],
@@ -282,7 +277,6 @@ export default {
     return list
   },
 
-  // 获取热门标签
   getHotTag(tryNum = 0) {
     if (this._requestObj_hotTags) this._requestObj_hotTags.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
@@ -290,14 +284,13 @@ export default {
       method: 'post',
       form: weapi({}),
     })
-    return this._requestObj_hotTags.promise.then(({ body }) => {
-      // console.log(JSON.stringify(body))
+    return this._requestObj_hotTags.promise.then(({ body }: any) => {
       if (body.code !== this.successCode) return this.getTag(++tryNum)
       return this.filterHotTagInfo(body.tags)
     })
   },
-  filterHotTagInfo(rawList) {
-    return rawList.map(item => ({
+  filterHotTagInfo(rawList: any) {
+    return rawList.map((item: any) => ({
       id: item.playlistTag.name,
       name: item.playlistTag.name,
       source: 'wy',
@@ -305,35 +298,33 @@ export default {
   },
 
   getTags() {
-    return Promise.all([this.getTag(), this.getHotTag()]).then(([tags, hotTag]) => ({ tags, hotTag, source: 'wy' }))
+    return Promise.all([this.getTag(), this.getHotTag()]).then(([tags, hotTag]) => ({
+      tags,
+      hotTag,
+      source: 'wy',
+    }))
   },
 
-  async getDetailPageUrl(rawId) {
+  async getDetailPageUrl(rawId: any) {
     const { id } = await this.getListId(rawId)
     return `https://music.163.com/#/playlist?id=${id}`
   },
 
-  search(text, page, limit = 20) {
+  search(text: any, page: any, limit = 20) {
     return eapiRequest('/api/cloudsearch/pc', {
       s: text,
-      type: 1000, // 1: 单曲, 10: 专辑, 100: 歌手, 1000: 歌单, 1002: 用户, 1004: MV, 1006: 歌词, 1009: 电台, 1014: 视频
+      type: 1000,
       limit,
       total: page == 1,
       offset: limit * (page - 1),
+    }).promise.then(({ body }: any) => {
+      if (body.code != this.successCode) throw new Error('filed')
+      return {
+        list: this.filterList(body.result.playlists),
+        limit,
+        total: body.result.playlistCount,
+        source: 'wy',
+      }
     })
-      .promise.then(({ body }) => {
-        if (body.code != this.successCode) throw new Error('filed')
-        // console.log(body)
-        return {
-          list: this.filterList(body.result.playlists),
-          limit,
-          total: body.result.playlistCount,
-          source: 'wy',
-        }
-      })
   },
 }
-
-// getList
-// getTags
-// getListDetail

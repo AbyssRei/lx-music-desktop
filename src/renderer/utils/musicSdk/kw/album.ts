@@ -1,20 +1,20 @@
-import { httpFetch } from '../../request'
-import { decodeName } from '../../index'
-import { formatSinger, objStr2JSON } from './util'
+import {httpFetch} from '../../request'
+import {decodeName} from '../../index'
+import {formatSinger, objStr2JSON} from './util'
 
 // let requestObj_list
 export default {
   limit_list: 36,
   limit_song: 1000,
-  filterListDetail(rawList, albumName, albumId) {
+  filterListDetail(rawList: any[], albumName: string, albumId: string): any[] {
     // console.log(rawList)
     // console.log(rawList.length, rawList2.length)
-    return rawList.map((item, inedx) => {
+    return rawList.map((item: any, inedx: number) => {
       let formats = item.formats.split('|')
-      let types = []
-      let _types = {}
+      let types: any[] = []
+      let _types: Record<string, any> = {}
       if (formats.includes('MP3128')) {
-        types.push({ type: '128k', size: null })
+        types.push({type: '128k', size: null})
         _types['128k'] = {
           size: null,
         }
@@ -26,7 +26,7 @@ export default {
       //   }
       // }
       if (formats.includes('MP3H')) {
-        types.push({ type: '320k', size: null })
+        types.push({type: '320k', size: null})
         _types['320k'] = {
           size: null,
         }
@@ -38,14 +38,20 @@ export default {
       //   }
       // }
       if (formats.includes('ALFLAC')) {
-        types.push({ type: 'flac', size: null })
+        types.push({type: 'flac', size: null})
         _types.flac = {
           size: null,
         }
       }
       if (formats.includes('HIRFLAC')) {
-        types.push({ type: 'flac24bit', size: null })
-        _types.flac24bit = {
+        types.push({type: 'hires', size: null})
+        _types.hires = {
+          size: null,
+        }
+      }
+      if (formats.includes('ZPLY')) {
+        types.push({type: 'master', size: null})
+        _types.master = {
           size: null,
         }
       }
@@ -71,15 +77,17 @@ export default {
    * 格式化播放数量
    * @param {*} num
    */
-  formatPlayCount(num) {
-    if (num > 100000000) return parseInt(num / 10000000) / 10 + '亿'
-    if (num > 10000) return parseInt(num / 1000) / 10 + '万'
+  formatPlayCount(num: number): string | number {
+    if (num > 100000000) return parseInt(String(num / 10000000)) / 10 + '亿'
+    if (num > 10000) return parseInt(String(num / 1000)) / 10 + '万'
     return num
   },
-  getAlbumListDetail(id, page, retryNum = 0) {
+  getAlbumListDetail(id: string, page: number, retryNum: number = 0): Promise<any> {
     if (retryNum > 2) return Promise.reject(new Error('try max num'))
-    const requestObj_listDetail = httpFetch(`http://search.kuwo.cn/r.s?pn=${page - 1}&rn=${this.limit_song}&stype=albuminfo&albumid=${id}&show_copyright_off=0&encoding=utf&vipver=MUSIC_9.1.0`)
-    return requestObj_listDetail.promise.then(({ statusCode, body }) => {
+    const requestObj_listDetail = httpFetch(
+      `http://search.kuwo.cn/r.s?pn=${page - 1}&rn=${this.limit_song}&stype=albuminfo&albumid=${id}&show_copyright_off=0&encoding=utf&vipver=MUSIC_9.1.0`
+    )
+    return requestObj_listDetail.promise.then(({statusCode, body}: {statusCode: number; body: any}) => {
       if (statusCode !== 200) return this.getAlbumListDetail(id, page, ++retryNum)
       body = objStr2JSON(body)
       // console.log(body)

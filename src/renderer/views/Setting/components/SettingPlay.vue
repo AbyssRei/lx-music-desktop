@@ -35,10 +35,10 @@ dd
 
 dd
   h3#basic_play_quality {{ $t('setting__play_playQuality') }}
-  div
-    base-checkbox.gap-left(
+  .quality-list-vertical
+    base-checkbox(
       v-for="item in playQualityList" :id="`setting_play_quality_${item}`" :key="item"
-      name="setting_play_quality" need :model-value="appSetting['player.playQuality']" :value="item" :label="item"
+      name="setting_play_quality" need :model-value="appSetting['player.playQuality']" :value="item" :label="qualityNames[item] || item"
       @update:model-value="updateSetting({'player.playQuality': $event})")
 
 dd(:aria-label="$t('setting__play_mediaDevice_title')")
@@ -63,7 +63,21 @@ export default {
   name: 'SettingPlay',
   setup() {
     const t = useI18n()
-    const playQualityList = [...TRY_QUALITYS_LIST, '128k'].reverse()
+    const playQualityList = [...TRY_QUALITYS_LIST, '128k', '96k'].reverse()
+    const qualityNames = {
+      '96k': '低清音质 96 kbps',
+      '128k': '普通音质 128 kbps',
+      '192k': '中等音质 192 kbps',
+      '320k': '高清音质 320 kbps',
+      flac: '高清无损 FLAC',
+      hires: '高解析度 Hi-Res',
+      flac24bit: '高解析度无损 FLAC 24-bit',
+      vinyl: '黑胶音质 Vinyl',
+      dolby: '杜比全景声 Dolby Atmos',
+      atmos: '臻品音质 Atmos 2.0',
+      atmos_plus: '臻品全景声 Atmos+ 2.0',
+      master: '臻品母带 Master 3.0',
+    }
 
     const mediaDevices = ref([])
     const getMediaDevice = async() => {
@@ -148,8 +162,24 @@ export default {
       isMaxOutputChannelCount,
       handleUpdateMaxOutputChannelCount,
       playQualityList,
+      qualityNames,
       isMac,
     }
   },
 }
 </script>
+<style lang="less" scoped>
+.quality-list-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  :deep(label) {
+    cursor: pointer;
+
+    span {
+      cursor: pointer;
+    }
+  }
+}
+</style>
