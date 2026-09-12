@@ -1,6 +1,6 @@
 import { formatPlayTime, sizeFormate } from '../../index'
 import { formatSingerName } from '../utils'
-import { signRequest } from './utils'
+import { signRequest } from '@renderer/utils/musicSdk/tx/utils'
 
 export default {
   limit: 50,
@@ -8,7 +8,7 @@ export default {
   page: 0,
   allPage: 1,
   successCode: 0,
-  musicSearch(str, page, limit, retryNum = 0) {
+  musicSearch(str: string, page: number, limit: number, retryNum: number = 0): Promise<any> {
     if (retryNum > 5) return Promise.reject(new Error('搜索失败'))
     const searchRequest = signRequest({
       comm: {
@@ -41,7 +41,7 @@ export default {
         },
       },
     })
-    return searchRequest.then(({ body }) => {
+    return searchRequest.promise.then(({ body }: any) => {
       // console.log(body)
       const req = body?.['music.search.SearchCgiService'] ?? body?.req
       if (!req || body.code != this.successCode || req.code != this.successCode) {
@@ -54,22 +54,21 @@ export default {
    * PC 客户端版 searchid：32 位大写十六进制 GUID + 5 位补零随机数 = 37 字符。
    * 对应 QQ 音乐 PC 端 searchid 形状（服务端只需要唯一的会话 ID，形状一致即可）。
    */
-  getSearchId() {
+  getSearchId(): string {
     let guid = ''
     for (let i = 0; i < 32; i++) guid += Math.floor(Math.random() * 16).toString(16)
     return guid.toUpperCase() + String(Math.floor(Math.random() * 100000)).padStart(5, '0')
   },
-  handleResult(rawList) {
-    // console.log(rawList)
+  handleResult(rawList: any[]): any[] {
     if (!rawList || !Array.isArray(rawList)) return []
-    const list = []
-    rawList.forEach(item => {
+    const list: any[] = []
+    rawList.forEach((item: any) => {
       if (!item.file?.media_mid) return
 
-      let types = []
-      let _types = {}
-      const file = item.file
-      if (file.size_128mp3 != 0) {
+      let types: { type: string; size: string }[] = []
+      let _types: Record<string, { size: string }> = {}
+      const file: any = item.file
+      if (file.size_128mp3 !== 0) {
         let size = sizeFormate(file.size_128mp3)
         types.push({ type: '128k', size })
         _types['128k'] = {
@@ -92,12 +91,33 @@ export default {
       }
       if (file.size_hires !== 0) {
         let size = sizeFormate(file.size_hires)
-        types.push({ type: 'flac24bit', size })
-        _types.flac24bit = {
+        types.push({ type: 'hires', size })
+        _types.hires = {
           size,
         }
       }
-      // types.reverse()
+      if (file.size_new[1] !== 0) {
+        let size = sizeFormate(file.size_new[1])
+        types.push({ type: 'atmos', size })
+        _types.atmos = {
+          size,
+        }
+      }
+      if (file.size_new[2] !== 0) {
+        let size = sizeFormate(file.size_new[2])
+        types.push({ type: 'atmos_plus', size })
+        _types.atmos_plus = {
+          size,
+        }
+      }
+      if (file.size_new[0] !== 0) {
+        let size = sizeFormate(file.size_new[0])
+        types.push({ type: 'master', size })
+        _types.master = {
+          size,
+        }
+      }
+
       let albumId = ''
       let albumName = ''
       if (item.album) {
@@ -127,9 +147,9 @@ export default {
     // console.log(list)
     return list
   },
-  search(str, page = 1, limit) {
+  search(str: string, page: number = 1, limit?: number | null): Promise<any> {
     if (limit == null) limit = this.limit
-    return this.musicSearch(str, page, limit).then(({ body, meta }) => {
+    return this.musicSearch(str, page, limit).then(({ body, meta }: any) => {
       let list = this.handleResult(body.song.list)
 
       this.total = meta.sum
