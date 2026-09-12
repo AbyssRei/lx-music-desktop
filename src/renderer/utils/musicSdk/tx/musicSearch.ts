@@ -10,54 +10,76 @@ export default {
   successCode: 0,
   musicSearch(str: string, page: number, limit: number, retryNum: number = 0): Promise<any> {
     if (retryNum > 5) return Promise.reject(new Error('搜索失败'))
+    // 移动端协议：模拟官方 Android 客户端请求，降低风控概率
     const searchRequest = signRequest({
       comm: {
-        _channelid: '0',
-        _os_version: '6.2.9200-2',
-        ct: '19',
-        cv: '2151',
-        guid: '1F70E520B2EAA7D25E11760783C53CA9',
-        patch: '118',
-        psrf_access_token_expiresAt: 0,
-        psrf_qqaccess_token: '',
-        psrf_qqopenid: '',
-        psrf_qqunionid: '',
+        ct: '11',
+        cv: '14090508',
+        v: '14090508',
         tmeAppID: 'qqmusic',
-        tmeLoginType: 0,
-        uin: '0',
-        wid: '7223299733393904640',
+        phonetype: 'EBG-AN10',
+        deviceScore: '553.47',
+        devicelevel: '50',
+        newdevicelevel: '20',
+        rom: 'HuaWei/EMOTION/EmotionUI_14.2.0',
+        os_ver: '12',
+        OpenUDID: '0',
+        OpenUDID2: '0',
+        QIMEI36: '0',
+        udid: '0',
+        chid: '0',
+        aid: '0',
+        oaid: '0',
+        taid: '0',
+        tid: '0',
+        wid: '0',
+        uid: '0',
+        sid: '0',
+        modeSwitch: '6',
+        teenMode: '0',
+        ui_mode: '2',
+        nettype: '1020',
+        v4ip: '',
       },
-      'music.search.SearchCgiService': {
+      req: {
         module: 'music.search.SearchCgiService',
-        method: 'DoSearchForQQMusicDesktop',
+        method: 'DoSearchForQQMusicMobile',
         param: {
-          grp: 1,
-          num_per_page: limit,
-          page_num: page,
-          query: str,
-          remoteplace: 'txt.newclient.top',
           search_type: 0,
           searchid: this.getSearchId(),
+          query: str,
+          page_num: page,
+          num_per_page: limit,
+          highlight: 0,
+          nqc_flag: 0,
+          multi_zhida: 0,
+          cat: 2,
+          grp: 1,
+          sin: 0,
+          sem: 0,
         },
       },
     })
     return searchRequest.promise.then(({ body }: any) => {
-      // console.log(body)
-      const req = body?.['music.search.SearchCgiService'] ?? body?.req
-      if (!req || body.code != this.successCode || req.code != this.successCode) {
+      if (!body?.req || body.code != this.successCode || body.req.code != this.successCode) {
         return this.musicSearch(str, page, limit, ++retryNum)
       }
-      return req.data
+      return body.req.data
     })
   },
+  randomInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min
+  },
   /**
-   * PC 客户端版 searchid：32 位大写十六进制 GUID + 5 位补零随机数 = 37 字符。
-   * 对应 QQ 音乐 PC 端 searchid 形状（服务端只需要唯一的会话 ID，形状一致即可）。
+   * 移动端版 searchid：数值型会话 ID
    */
   getSearchId(): string {
-    let guid = ''
-    for (let i = 0; i < 32; i++) guid += Math.floor(Math.random() * 16).toString(16)
-    return guid.toUpperCase() + String(Math.floor(Math.random() * 100000)).padStart(5, '0')
+    const e = this.randomInt(1, 20)
+    const t = Number(e * Number('18014398509481984').toFixed())
+    const n = this.randomInt(0, 4194304) * 4294967296
+    const a = Date.now()
+    const r = Math.round(a * 1000) % (24 * 60 * 60 * 1000)
+    return String(t + n + r)
   },
   handleResult(rawList: any[]): any[] {
     if (!rawList || !Array.isArray(rawList)) return []
@@ -126,8 +148,7 @@ export default {
       }
       list.push({
         singer: formatSingerName(item.singer, 'name'),
-        // name: item.name + (item.title_extra ?? ''),
-        name: item.title,
+        name: item.name + (item.title_extra ?? ''),
         albumName,
         albumId,
         source: 'tx',
@@ -144,15 +165,14 @@ export default {
         typeUrl: {},
       })
     })
-    // console.log(list)
     return list
   },
   search(str: string, page: number = 1, limit?: number | null): Promise<any> {
     if (limit == null) limit = this.limit
-    return this.musicSearch(str, page, limit).then(({ body, meta }: any) => {
-      let list = this.handleResult(body.song.list)
+    return this.musicSearch(str, page, limit).then((data: any) => {
+      let list = this.handleResult(data.body.item_song)
 
-      this.total = meta.sum
+      this.total = data.meta.estimate_sum
       this.page = page
       this.allPage = Math.ceil(this.total / limit)
 
