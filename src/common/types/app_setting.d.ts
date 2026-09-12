@@ -14,6 +14,16 @@ declare global {
       'common.windowSizeId': number
 
       /**
+       * 自定义窗口宽度（用户手动调整后保存）
+       */
+      'common.windowWidth': number | null
+
+      /**
+       * 自定义窗口高度（用户手动调整后保存）
+       */
+      'common.windowHeight': number | null
+
+      /**
        * 窗口大小id
        */
       'common.fontSize': number
@@ -589,6 +599,11 @@ declare global {
        * 歌曲源不可用时，是否启用换源下载
        */
       'download.isUseOtherSource': boolean
+
+      /**
+       * 音质回退策略
+       */
+      'download.qualityFallbackStrategy': 'downgrade' | 'upgrade' | 'max' | 'min'
 
       /**
        * 主题id
