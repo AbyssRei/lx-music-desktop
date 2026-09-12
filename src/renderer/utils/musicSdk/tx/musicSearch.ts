@@ -75,7 +75,7 @@ export default {
    */
   getSearchId(): string {
     const e = this.randomInt(1, 20)
-    const t = Number(e * Number('18014398509481984').toFixed())
+    const t = e * 18014398509481984
     const n = this.randomInt(0, 4194304) * 4294967296
     const a = Date.now()
     const r = Math.round(a * 1000) % (24 * 60 * 60 * 1000)
