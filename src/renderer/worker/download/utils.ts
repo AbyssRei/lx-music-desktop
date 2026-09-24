@@ -7,7 +7,7 @@ import { clipFileNameLength, clipNameLength, formatMusicName } from '@common/uti
 /**
  * 保存歌词文件
  */
-export const saveLrc = async (
+export const saveLrc = async(
   lrcData: LX.Music.LyricInfo,
   info: {
     filePath: string
@@ -15,7 +15,7 @@ export const saveLrc = async (
     downloadLxlrc: boolean
     downloadTlrc: boolean
     downloadRlrc: boolean
-  }
+  },
 ) => {
   const iconv = (await import('iconv-lite')).default
   const lrc = buildLyrics(lrcData, info.downloadLxlrc, info.downloadTlrc, info.downloadRlrc)
@@ -62,7 +62,7 @@ export const getExt = (type: string): LX.Download.FileExt => {
 export const getMusicType = (
   musicInfo: LX.Music.MusicInfoOnline,
   type: LX.Quality,
-  qualityList: LX.QualityList
+  qualityList: LX.QualityList,
 ): LX.Quality => {
   let list = qualityList[musicInfo.source]
   if (!list) return '128k'
@@ -79,7 +79,7 @@ export const createDownloadInfo = (
   type: LX.Quality,
   fileName: string,
   qualityList: LX.QualityList,
-  listId?: string
+  listId?: string,
 ) => {
   type = getMusicType(musicInfo, type, qualityList)
   let ext = getExt(type)
@@ -103,8 +103,8 @@ export const createDownloadInfo = (
       listId,
       fileName: filterFileName(
         `${clipFileNameLength(
-          formatMusicName(fileName, musicInfo.name, clipNameLength(musicInfo.singer))
-        )}.${ext}`
+          formatMusicName(fileName, musicInfo.name, clipNameLength(musicInfo.singer)),
+        )}.${ext}`,
       ),
     },
   }

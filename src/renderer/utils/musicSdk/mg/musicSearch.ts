@@ -2,11 +2,11 @@ import { httpFetch } from '../../request'
 import { sizeFormate, formatPlayTime } from '../../index'
 import { toMD5, formatSingerName } from '../utils'
 
-export const createSignature = (time: string, str: string): { sign: string; deviceId: string } => {
+export const createSignature = (time: string, str: string): { sign: string, deviceId: string } => {
   const deviceId = '963B7AA0D21511ED807EE5846EC87D20'
   const signatureMd5 = '6cdc72a439cef99a3418d2a78aa28c73'
   const sign = toMD5(
-    `${str}${signatureMd5}yyapp2d16148780a1dcc7408e06336b98cfd50${deviceId}${time}`
+    `${str}${signatureMd5}yyapp2d16148780a1dcc7408e06336b98cfd50${deviceId}${time}`,
   )
   return { sign, deviceId }
 }
@@ -17,7 +17,7 @@ export default {
   page: 0,
   allPage: 1,
 
-  musicSearch(str: string, page: number, limit: number): Promise<any> {
+  async musicSearch(str: string, page: number, limit: number): Promise<any> {
     const time = Date.now().toString()
     const signData = createSignature(time, str)
     const searchRequest = httpFetch(
@@ -32,14 +32,14 @@ export default {
           'User-Agent':
             'Mozilla/5.0 (Linux; U; Android 11.0.0; zh-cn; MI 11 Build/OPR1.170623.032) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30',
         },
-      }
+      },
     )
     return searchRequest.promise.then(({ body }: any) => body)
   },
   filterData(rawData: any[][]): any[] {
     // console.log(rawData)
     const list: any[] = []
-    const ids: Set<string> = new Set()
+    const ids = new Set<string>()
 
     rawData.forEach((item: any[]) => {
       item.forEach((data: any) => {
@@ -48,40 +48,39 @@ export default {
 
         const types: any[] = []
         const _types: Record<string, any> = {}
-        data.audioFormats &&
-          data.audioFormats.forEach((type: any) => {
-            let size: string
-            switch (type.formatType) {
-              case 'PQ':
-                size = sizeFormate(type.asize ?? type.isize)
-                types.push({ type: '128k', size })
-                _types['128k'] = {
-                  size,
-                }
-                break
-              case 'HQ':
-                size = sizeFormate(type.asize ?? type.isize)
-                types.push({ type: '320k', size })
-                _types['320k'] = {
-                  size,
-                }
-                break
-              case 'SQ':
-                size = sizeFormate(type.asize ?? type.isize)
-                types.push({ type: 'flac', size })
-                _types.flac = {
-                  size,
-                }
-                break
-              case 'ZQ24':
-                size = sizeFormate(type.asize ?? type.isize)
-                types.push({ type: 'hires', size })
-                _types.hires = {
-                  size,
-                }
-                break
-            }
-          })
+        data.audioFormats?.forEach((type: any) => {
+          let size: string
+          switch (type.formatType) {
+            case 'PQ':
+              size = sizeFormate(type.asize ?? type.isize)
+              types.push({ type: '128k', size })
+              _types['128k'] = {
+                size,
+              }
+              break
+            case 'HQ':
+              size = sizeFormate(type.asize ?? type.isize)
+              types.push({ type: '320k', size })
+              _types['320k'] = {
+                size,
+              }
+              break
+            case 'SQ':
+              size = sizeFormate(type.asize ?? type.isize)
+              types.push({ type: 'flac', size })
+              _types.flac = {
+                size,
+              }
+              break
+            case 'ZQ24':
+              size = sizeFormate(type.asize ?? type.isize)
+              types.push({ type: 'hires', size })
+              _types.hires = {
+                size,
+              }
+              break
+          }
+        })
 
         let img = data.img3 || data.img2 || data.img1 || null
         if (img && !/https?:/.test(data.img3)) img = 'http://d.musicapp.migu.cn' + img
@@ -108,14 +107,13 @@ export default {
     })
     return list
   },
-  search(str: string, page: number = 1, limit?: number, retryNum: number = 0): Promise<any> {
+  async search(str: string, page: number = 1, limit?: number, retryNum: number = 0): Promise<any> {
     if (++retryNum > 3) return Promise.reject(new Error('try max num'))
     if (limit == null) limit = this.limit
     // http://newlyric.kuwo.cn/newlyric.lrc?62355680
-    return this.musicSearch(str, page, limit).then((result: any) => {
+    return this.musicSearch(str, page, limit).then(async(result: any) => {
       // console.log(result)
-      if (!result || result.code !== '000000')
-        return Promise.reject(new Error(result ? result.info : '搜索失败'))
+      if (!result || result.code !== '000000') { return Promise.reject(new Error(result ? result.info : '搜索失败')) }
       const songResultData = result.songResultData || { resultList: [], totalCount: 0 }
 
       let list = this.filterData(songResultData.resultList)

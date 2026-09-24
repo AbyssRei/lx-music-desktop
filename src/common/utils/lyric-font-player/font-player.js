@@ -1,5 +1,7 @@
 import { getNow, TimeoutTools } from './utils'
 
+/* global getComputedStyle */
+
 // const fontFormateRxp = /(?=<\d+,\d+>).*?/g
 const fontSplitRxp = /(?=<\d+,\d+>).*?/g
 const timeRxpAll = /<(\d+),(\d+)>/g

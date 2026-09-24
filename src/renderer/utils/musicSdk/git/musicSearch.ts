@@ -105,7 +105,6 @@ export default {
         source: 'git',
       })
     } catch (error: any) {
-
       // 重试
       if (error.message.includes('ECONNREFUSED') || error.message.includes('ETIMEDOUT')) {
         console.log(`[Gitcode] 网络错误，重试 ${retryNum + 1}/3`)

@@ -1,5 +1,5 @@
-import {createCipheriv, createDecipheriv} from 'crypto'
-import {toMD5} from '../utils'
+import { createCipheriv, createDecipheriv } from 'crypto'
+import { toMD5 } from '../utils'
 
 export const objStr2JSON = (str: string): any => {
   return JSON.parse(str.replace(/('(?=(,\s*')))|('(?=:))|((?<=([:,]\s*))')|((?<={)')|('(?=}))/g, '"'))
@@ -21,7 +21,13 @@ export const lrcTools = {
     tagLine: /\[(ver|ti|ar|al|offset|by|kuwo):\s*(\S+(?:\s+\S+)*)\s*\]/,
     wordTimeAll: /<(-?\d+),(-?\d+)(?:,-?\d+)?>/g,
     wordTime: /<(-?\d+),(-?\d+)(?:,-?\d+)?>/,
-  }, offset: 1, offset2: 1, isOK: false, lines: [] as string[], tags: [] as string[], getWordInfo(str: string, str2: string, prevWord: any): any {
+  },
+  offset: 1,
+  offset2: 1,
+  isOK: false,
+  lines: [] as string[],
+  tags: [] as string[],
+  getWordInfo(str: string, str2: string, prevWord: any): any {
     const offset = parseInt(str)
     const offset2 = parseInt(str2)
     let startTime = Math.trunc(Math.abs((offset + offset2) / (this.offset * 2)))
@@ -39,7 +45,8 @@ export const lrcTools = {
     return {
       startTime, endTime, timeStr: `<${startTime},${Math.trunc(endTime - startTime)}>`,
     }
-  }, parseLine(line: string): void {
+  },
+  parseLine(line: string): void {
     if (line.length < 6) return
     let result = this.rxps.wordLine.exec(line)
     if (result) {
@@ -78,7 +85,8 @@ export const lrcTools = {
     } else {
       this.tags.push(line)
     }
-  }, parse(lrc: string): string {
+  },
+  parse(lrc: string): string {
     const lines = lrc.split(/\r\n|\r|\n/)
     const tools = Object.create(this)
     tools.isOK = true

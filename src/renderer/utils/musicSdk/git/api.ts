@@ -1,10 +1,10 @@
-import { loadDatabase } from './util'
-import { generateSongId, buildDownloadUrl } from './util'
+import { loadDatabase, generateSongId, buildDownloadUrl } from './util'
+
 
 /**
  * 获取音乐URL
  */
-export const getMusicUrl = async (songInfo: any, type: string): Promise<{ type: string; url: string }> => {
+export const getMusicUrl = async(songInfo: any, type: string): Promise<{ type: string, url: string }> => {
   // 从搜索结果中恢复原始数据
   let gitcodeData = songInfo._gitcodeData
 

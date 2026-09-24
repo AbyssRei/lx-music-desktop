@@ -11,7 +11,7 @@ simplified.split('').forEach((char, index) => {
 function simplify(source: string): string {
   let result: string[] = []
   for (const char of source) {
-    result.push(tsMap.get(char) || char)
+    result.push(tsMap.get(char) ?? char)
   }
   return result.join('')
 }
@@ -19,7 +19,7 @@ function simplify(source: string): string {
 function tranditionalize(source: string): string {
   let result: string[] = []
   for (const char of source) {
-    result.push(stMap.get(char) || char)
+    result.push(stMap.get(char) ?? char)
   }
   return result.join('')
 }

@@ -156,7 +156,7 @@ export default {
     })
     return this.requestBoardsObj.promise
   },
-  getData(url: string): Promise<any> {
+  async getData(url: string): Promise<any> {
     const requestObj = httpFetch(url)
     return requestObj.promise
   },
@@ -216,12 +216,11 @@ export default {
       source: 'mg',
     }
   },
-  getList(bangid: string, page: number, retryNum: number = 0): Promise<any> {
+  async getList(bangid: string, page: number, retryNum: number = 0): Promise<any> {
     if (++retryNum > 3) return Promise.reject(new Error('try max num'))
-    return this.getData(this.getUrl(bangid, page)).then(({ statusCode, body }: any) => {
+    return this.getData(this.getUrl(bangid, page)).then(async({ statusCode, body }: any) => {
       // console.log(body)
-      if (statusCode !== 200 || body.code !== this.successCode)
-        return this.getList(bangid, page, retryNum)
+      if (statusCode !== 200 || body.code !== this.successCode) { return this.getList(bangid, page, retryNum) }
       const list: any[] = filterMusicInfoList(body.columnInfo.contents.map((m: any) => m.objectInfo))
       return {
         total: list.length,

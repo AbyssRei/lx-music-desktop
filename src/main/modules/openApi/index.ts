@@ -8,7 +8,7 @@ const sendResponse = (
   res: http.ServerResponse,
   code = 200,
   msg: string | Record<any, unknown> = 'OK',
-  contentType = 'text/plain; charset=utf-8'
+  contentType = 'text/plain; charset=utf-8',
 ) => {
   res.writeHead(code, {
     'Content-Type': contentType,
@@ -69,7 +69,7 @@ const handleSendAllLyric = (res: http.ServerResponse<http.IncomingMessage>) => {
 const handleSubscribePlayerStatus = (
   req: http.IncomingMessage,
   res: http.ServerResponse<http.IncomingMessage>,
-  query?: string
+  query?: string,
 ) => {
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -91,7 +91,7 @@ const handleSubscribePlayerStatus = (
   }
 }
 
-const handleStartServer = async (port: number, ip: string) =>
+const handleStartServer = async(port: number, ip: string) =>
   new Promise<void>((resolve, reject) => {
     playerStatusKeys = Object.keys(global.lx.player_status) as SubscribeKeys[]
     httpServer = http.createServer((req, res): void => {
@@ -102,30 +102,30 @@ const handleStartServer = async (port: number, ip: string) =>
         case '/status':
           handleSendStatus(res, query)
           return
-        // case '/test':
-        //   code = 200
-        //   res.setHeader('Content-Type', 'text/html; charset=utf-8')
-        //   msg = `<!DOCTYPE html>
-        //   <html lang="en">
-        //     <head>
-        //       <meta charset="UTF-8" />
-        //       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        //       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        //       <title>Nodejs Server-Sent Events</title>
-        //     </head>
-        //     <body>
-        //       <h1>Hello SSE!</h1>
+          // case '/test':
+          //   code = 200
+          //   res.setHeader('Content-Type', 'text/html; charset=utf-8')
+          //   msg = `<!DOCTYPE html>
+          //   <html lang="en">
+          //     <head>
+          //       <meta charset="UTF-8" />
+          //       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+          //       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          //       <title>Nodejs Server-Sent Events</title>
+          //     </head>
+          //     <body>
+          //       <h1>Hello SSE!</h1>
 
-        //       <h2>List of Server-sent events</h2>
-        //       <ul id="sse-list"></ul>
+          //       <h2>List of Server-sent events</h2>
+          //       <ul id="sse-list"></ul>
 
-        //       <script>
-        //         const subscription = new EventSource('/subscribe-player-status');
+          //       <script>
+          //         const subscription = new EventSource('/subscribe-player-status');
 
-        //       // Default events
-        //       subscription.addEventListener('open', () => {
-        //           console.log('Connection opened')
-        //       });
+          //       // Default events
+          //       subscription.addEventListener('open', () => {
+          //           console.log('Connection opened')
+          //       });
 
         //       subscription.addEventListener('error', (err) => {
         //           console.error(err)
@@ -243,7 +243,7 @@ const handleStartServer = async (port: number, ip: string) =>
     httpServer.listen(port, ip)
   })
 
-const handleStopServer = async () =>
+const handleStopServer = async() =>
   new Promise<void>((resolve, reject) => {
     if (!httpServer) return
     httpServer.close((err) => {
@@ -268,7 +268,7 @@ const sendStatus = (status: Partial<LX.Player.Status>) => {
     }
   }
 }
-export const stopServer = async () => {
+export const stopServer = async() => {
   global.lx.event_app.off('player_status', sendStatus)
   if (!status.status) {
     status.status = false
@@ -288,7 +288,7 @@ export const stopServer = async () => {
     })
   return status
 }
-export const startServer = async (port: number, bindLan: boolean) => {
+export const startServer = async(port: number, bindLan: boolean) => {
   if (status.status) await stopServer()
   await handleStartServer(port, bindLan ? '0.0.0.0' : '127.0.0.1')
     .then(() => {

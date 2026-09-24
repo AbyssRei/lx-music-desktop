@@ -82,7 +82,7 @@ export const buildLyrics = (
   lrcData: LX.Music.LyricInfo,
   downloadAwlrc: boolean,
   downloadTlrc: boolean,
-  downloadRlrc: boolean
+  downloadRlrc: boolean,
 ) => {
   if (!lrcData.tlyric && !lrcData.rlyric && !lrcData.lxlyric) return lrcData.lyric
 

@@ -5,8 +5,8 @@
  * https://github.com/imsyy/SPlayer/blob/159f2e4de772f477ca72af3fb99938238f81a32f/electron/server/qqmusic/tripledes.ts
  */
 
-const ENCRYPT = 1;
-const DECRYPT = 0;
+const ENCRYPT = 1
+const DECRYPT = 0
 
 // S-boxes
 const sbox: number[][] = [
@@ -58,24 +58,24 @@ const sbox: number[][] = [
     0, 14, 9, 2, 7, 11, 4, 1, 9, 12, 14, 2, 0, 6, 10, 13, 15, 3, 5, 8, 2, 1, 14, 7, 4, 10, 8, 13,
     15, 12, 9, 0, 3, 5, 6, 11,
   ],
-];
+]
 
 function bitnum(a: Uint8Array, b: number, c: number): number {
   // 原始 Python: ((a[(b // 32) * 4 + 3 - (b % 32) // 8] >> (7 - b % 8)) & 1) << c
-  const byteIndex = Math.floor(b / 32) * 4 + 3 - Math.floor((b % 32) / 8);
-  return ((a[byteIndex] >> (7 - (b % 8))) & 1) << c;
+  const byteIndex = Math.floor(b / 32) * 4 + 3 - Math.floor((b % 32) / 8)
+  return ((a[byteIndex] >> (7 - (b % 8))) & 1) << c
 }
 
 function bitnumIntr(a: number, b: number, c: number): number {
-  return ((a >> (31 - b)) & 1) << c;
+  return ((a >> (31 - b)) & 1) << c
 }
 
 function bitnumIntl(a: number, b: number, c: number): number {
-  return (((a << b) & 0x80000000) >>> c) >>> 0;
+  return (((a << b) & 0x80000000) >>> c) >>> 0
 }
 
 function sboxBit(a: number): number {
-  return (a & 32) | ((a & 31) >> 1) | ((a & 1) << 4);
+  return (a & 32) | ((a & 31) >> 1) | ((a & 1) << 4)
 }
 
 function initialPermutation(inputData: Uint8Array): [number, number] {
@@ -112,7 +112,7 @@ function initialPermutation(inputData: Uint8Array): [number, number] {
       bitnum(inputData, 23, 2) |
       bitnum(inputData, 15, 1) |
       bitnum(inputData, 7, 0)) >>>
-    0;
+    0
 
   const s1 =
     (bitnum(inputData, 56, 31) |
@@ -147,13 +147,13 @@ function initialPermutation(inputData: Uint8Array): [number, number] {
       bitnum(inputData, 22, 2) |
       bitnum(inputData, 14, 1) |
       bitnum(inputData, 6, 0)) >>>
-    0;
+    0
 
-  return [s0, s1];
+  return [s0, s1]
 }
 
 function inversePermutation(s0: number, s1: number): Uint8Array {
-  const data = new Uint8Array(8);
+  const data = new Uint8Array(8)
 
   data[3] =
     bitnumIntr(s1, 7, 7) |
@@ -163,7 +163,7 @@ function inversePermutation(s0: number, s1: number): Uint8Array {
     bitnumIntr(s1, 23, 3) |
     bitnumIntr(s0, 23, 2) |
     bitnumIntr(s1, 31, 1) |
-    bitnumIntr(s0, 31, 0);
+    bitnumIntr(s0, 31, 0)
 
   data[2] =
     bitnumIntr(s1, 6, 7) |
@@ -173,7 +173,7 @@ function inversePermutation(s0: number, s1: number): Uint8Array {
     bitnumIntr(s1, 22, 3) |
     bitnumIntr(s0, 22, 2) |
     bitnumIntr(s1, 30, 1) |
-    bitnumIntr(s0, 30, 0);
+    bitnumIntr(s0, 30, 0)
 
   data[1] =
     bitnumIntr(s1, 5, 7) |
@@ -183,7 +183,7 @@ function inversePermutation(s0: number, s1: number): Uint8Array {
     bitnumIntr(s1, 21, 3) |
     bitnumIntr(s0, 21, 2) |
     bitnumIntr(s1, 29, 1) |
-    bitnumIntr(s0, 29, 0);
+    bitnumIntr(s0, 29, 0)
 
   data[0] =
     bitnumIntr(s1, 4, 7) |
@@ -193,7 +193,7 @@ function inversePermutation(s0: number, s1: number): Uint8Array {
     bitnumIntr(s1, 20, 3) |
     bitnumIntr(s0, 20, 2) |
     bitnumIntr(s1, 28, 1) |
-    bitnumIntr(s0, 28, 0);
+    bitnumIntr(s0, 28, 0)
 
   data[7] =
     bitnumIntr(s1, 3, 7) |
@@ -203,7 +203,7 @@ function inversePermutation(s0: number, s1: number): Uint8Array {
     bitnumIntr(s1, 19, 3) |
     bitnumIntr(s0, 19, 2) |
     bitnumIntr(s1, 27, 1) |
-    bitnumIntr(s0, 27, 0);
+    bitnumIntr(s0, 27, 0)
 
   data[6] =
     bitnumIntr(s1, 2, 7) |
@@ -213,7 +213,7 @@ function inversePermutation(s0: number, s1: number): Uint8Array {
     bitnumIntr(s1, 18, 3) |
     bitnumIntr(s0, 18, 2) |
     bitnumIntr(s1, 26, 1) |
-    bitnumIntr(s0, 26, 0);
+    bitnumIntr(s0, 26, 0)
 
   data[5] =
     bitnumIntr(s1, 1, 7) |
@@ -223,7 +223,7 @@ function inversePermutation(s0: number, s1: number): Uint8Array {
     bitnumIntr(s1, 17, 3) |
     bitnumIntr(s0, 17, 2) |
     bitnumIntr(s1, 25, 1) |
-    bitnumIntr(s0, 25, 0);
+    bitnumIntr(s0, 25, 0)
 
   data[4] =
     bitnumIntr(s1, 0, 7) |
@@ -233,9 +233,9 @@ function inversePermutation(s0: number, s1: number): Uint8Array {
     bitnumIntr(s1, 16, 3) |
     bitnumIntr(s0, 16, 2) |
     bitnumIntr(s1, 24, 1) |
-    bitnumIntr(s0, 24, 0);
+    bitnumIntr(s0, 24, 0)
 
-  return data;
+  return data
 }
 
 function f(state: number, key: number[]): number {
@@ -252,7 +252,7 @@ function f(state: number, key: number[]): number {
       bitnumIntl(state, 11, 18) |
       ((state & 0x000f0000) >>> 7) |
       bitnumIntl(state, 16, 23)) >>>
-    0;
+    0
 
   const t2 =
     (bitnumIntl(state, 15, 0) |
@@ -267,7 +267,7 @@ function f(state: number, key: number[]): number {
       bitnumIntl(state, 27, 18) |
       ((state & 0x0000000f) << 9) |
       bitnumIntl(state, 0, 23)) >>>
-    0;
+    0
 
   const lrgstate = [
     ((t1 >>> 24) & 0x000000ff) ^ key[0],
@@ -276,7 +276,7 @@ function f(state: number, key: number[]): number {
     ((t2 >>> 24) & 0x000000ff) ^ key[3],
     ((t2 >>> 16) & 0x000000ff) ^ key[4],
     ((t2 >>> 8) & 0x000000ff) ^ key[5],
-  ];
+  ]
 
   state =
     ((sbox[0][sboxBit(lrgstate[0] >>> 2)] << 28) |
@@ -287,7 +287,7 @@ function f(state: number, key: number[]): number {
       (sbox[5][sboxBit(((lrgstate[3] & 0x03) << 4) | (lrgstate[4] >>> 4))] << 8) |
       (sbox[6][sboxBit(((lrgstate[4] & 0x0f) << 2) | (lrgstate[5] >>> 6))] << 4) |
       sbox[7][sboxBit(lrgstate[5] & 0x3f)]) >>>
-    0;
+    0
 
   return (
     (bitnumIntl(state, 15, 0) |
@@ -323,65 +323,65 @@ function f(state: number, key: number[]): number {
       bitnumIntl(state, 3, 30) |
       bitnumIntl(state, 24, 31)) >>>
     0
-  );
+  )
 }
 
 function crypt(inputData: Uint8Array, key: number[][]): Uint8Array {
-  let [s0, s1] = initialPermutation(inputData);
+  let [s0, s1] = initialPermutation(inputData)
 
   for (let idx = 0; idx < 15; idx++) {
-    const previousS1 = s1;
-    s1 = (f(s1, key[idx]) ^ s0) >>> 0;
-    s0 = previousS1;
+    const previousS1 = s1
+    s1 = (f(s1, key[idx]) ^ s0) >>> 0
+    s0 = previousS1
   }
-  s0 = (f(s1, key[15]) ^ s0) >>> 0;
+  s0 = (f(s1, key[15]) ^ s0) >>> 0
 
-  return inversePermutation(s0, s1);
+  return inversePermutation(s0, s1)
 }
 
 function keySchedule(key: Uint8Array, mode: number): number[][] {
-  const schedule: number[][] = Array.from({ length: 16 }, () => Array(6).fill(0));
-  const keyRndShift = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1];
+  const schedule: number[][] = Array.from({ length: 16 }, () => Array(6).fill(0))
+  const keyRndShift = [1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1]
   const keyPermC = [
     56, 48, 40, 32, 24, 16, 8, 0, 57, 49, 41, 33, 25, 17, 9, 1, 58, 50, 42, 34, 26, 18, 10, 2, 59,
     51, 43, 35,
-  ];
+  ]
   const keyPermD = [
     62, 54, 46, 38, 30, 22, 14, 6, 61, 53, 45, 37, 29, 21, 13, 5, 60, 52, 44, 36, 28, 20, 12, 4, 27,
     19, 11, 3,
-  ];
+  ]
   const keyCompression = [
     13, 16, 10, 23, 0, 4, 2, 27, 14, 5, 20, 9, 22, 18, 11, 3, 25, 7, 15, 6, 26, 19, 12, 1, 40, 51,
     30, 36, 46, 54, 29, 39, 50, 44, 32, 47, 43, 48, 38, 55, 33, 52, 45, 41, 49, 35, 28, 31,
-  ];
+  ]
 
-  let c = 0;
-  let d = 0;
+  let c = 0
+  let d = 0
   for (let i = 0; i < 28; i++) {
-    c |= bitnum(key, keyPermC[i], 31 - i);
-    d |= bitnum(key, keyPermD[i], 31 - i);
+    c |= bitnum(key, keyPermC[i], 31 - i)
+    d |= bitnum(key, keyPermD[i], 31 - i)
   }
 
   for (let i = 0; i < 16; i++) {
-    c = (((c << keyRndShift[i]) | (c >>> (28 - keyRndShift[i]))) & 0xfffffff0) >>> 0;
-    d = (((d << keyRndShift[i]) | (d >>> (28 - keyRndShift[i]))) & 0xfffffff0) >>> 0;
+    c = (((c << keyRndShift[i]) | (c >>> (28 - keyRndShift[i]))) & 0xfffffff0) >>> 0
+    d = (((d << keyRndShift[i]) | (d >>> (28 - keyRndShift[i]))) & 0xfffffff0) >>> 0
 
-    const togen = mode === DECRYPT ? 15 - i : i;
+    const togen = mode === DECRYPT ? 15 - i : i
 
     for (let j = 0; j < 6; j++) {
-      schedule[togen][j] = 0;
+      schedule[togen][j] = 0
     }
 
     for (let j = 0; j < 24; j++) {
-      schedule[togen][Math.floor(j / 8)] |= bitnumIntr(c, keyCompression[j], 7 - (j % 8));
+      schedule[togen][Math.floor(j / 8)] |= bitnumIntr(c, keyCompression[j], 7 - (j % 8))
     }
 
     for (let j = 24; j < 48; j++) {
-      schedule[togen][Math.floor(j / 8)] |= bitnumIntr(d, keyCompression[j] - 27, 7 - (j % 8));
+      schedule[togen][Math.floor(j / 8)] |= bitnumIntr(d, keyCompression[j] - 27, 7 - (j % 8))
     }
   }
 
-  return schedule;
+  return schedule
 }
 
 function tripleDesKeySetup(key: Uint8Array, mode: number): number[][][] {
@@ -390,21 +390,21 @@ function tripleDesKeySetup(key: Uint8Array, mode: number): number[][][] {
       keySchedule(key.slice(0), ENCRYPT),
       keySchedule(key.slice(8), DECRYPT),
       keySchedule(key.slice(16), ENCRYPT),
-    ];
+    ]
   }
   return [
     keySchedule(key.slice(16), DECRYPT),
     keySchedule(key.slice(8), ENCRYPT),
     keySchedule(key.slice(0), DECRYPT),
-  ];
+  ]
 }
 
 function tripleDesCrypt(data: Uint8Array, key: number[][][]): Uint8Array {
-  let result = data;
+  let result = data
   for (let i = 0; i < 3; i++) {
-    result = crypt(result, key[i]);
+    result = crypt(result, key[i])
   }
-  return result;
+  return result
 }
 
 /**
@@ -414,15 +414,15 @@ function tripleDesCrypt(data: Uint8Array, key: number[][][]): Uint8Array {
  * @returns 解密后的字节数组
  */
 export function qrcDecrypt(encryptedData: Uint8Array, key: Uint8Array): Uint8Array {
-  const schedule = tripleDesKeySetup(key, DECRYPT);
-  const result: number[] = [];
+  const schedule = tripleDesKeySetup(key, DECRYPT)
+  const result: number[] = []
 
   // 以 8 字节为单位迭代
   for (let i = 0; i < encryptedData.length; i += 8) {
-    const block = encryptedData.slice(i, i + 8);
-    const decrypted = tripleDesCrypt(block, schedule);
-    result.push(...decrypted);
+    const block = encryptedData.slice(i, i + 8)
+    const decrypted = tripleDesCrypt(block, schedule)
+    result.push(...decrypted)
   }
 
-  return new Uint8Array(result);
+  return new Uint8Array(result)
 }

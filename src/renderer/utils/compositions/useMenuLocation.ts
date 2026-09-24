@@ -60,8 +60,7 @@ export default ({ visible, location, onHide }: UseMenuLocationOptions) => {
 
     if (event.target == dom_menu.value || dom_menu.value!.contains(event.target as Node)) return
 
-    if (show && menuStyles.transitionProperty != transition1)
-      menuStyles.transitionProperty = transition1
+    if (show && menuStyles.transitionProperty != transition1) { menuStyles.transitionProperty = transition1 }
 
     onHide()
   }
@@ -71,7 +70,7 @@ export default ({ visible, location, onHide }: UseMenuLocationOptions) => {
     (visible: boolean) => {
       visible ? handleShow() : handleHide()
     },
-    { immediate: true }
+    { immediate: true },
   )
 
   watch(
@@ -81,13 +80,12 @@ export default ({ visible, location, onHide }: UseMenuLocationOptions) => {
       menuStyles.top = location.y - window.lx.rootOffset + 'px'
       // nextTick(() => {
       if (show) {
-        if (menuStyles.transitionProperty != transition2)
-          menuStyles.transitionProperty = transition2
+        if (menuStyles.transitionProperty != transition2) { menuStyles.transitionProperty = transition2 }
         menuStyles.transform = `scale(1) translate(${handleGetOffsetXY(location.x, location.y)})`
       }
       // })
     },
-    { deep: true }
+    { deep: true },
   )
 
   onMounted(() => {

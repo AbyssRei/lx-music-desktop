@@ -225,7 +225,7 @@ const downloadLyric = (downloadInfo: LX.Download.ListItem) => {
         filePath:
           downloadInfo.metadata.filePath.substring(
             0,
-            downloadInfo.metadata.filePath.lastIndexOf('.')
+            downloadInfo.metadata.filePath.lastIndexOf('.'),
           ) + '.lrc',
         format: appSetting['download.lrcFormat'],
         downloadLxlrc: appSetting['download.isDownloadLxLrc'],
@@ -249,7 +249,7 @@ const getUrl = async(downloadInfo: LX.Download.ListItem, isRefresh: boolean = fa
         quality,
         allowToggleSource: false,
       })
-      : Promise.reject(new Error('not found'))).catch(() => {
+      : Promise.reject(new Error('not found'))).catch(async() => {
       return getMusicUrl({
         musicInfo: downloadInfo.metadata.musicInfo,
         isRefresh: false,
@@ -264,8 +264,8 @@ const getUrl = async(downloadInfo: LX.Download.ListItem, isRefresh: boolean = fa
     return await tryWithQuality(requestedQuality)
   } catch {
     // 请求音质不可用时按策略回退
-    const musicInfo = toggleMusicInfo || downloadInfo.metadata.musicInfo
-    const availableQualities = qualityList.value[musicInfo.source] || []
+    const musicInfo = toggleMusicInfo ?? downloadInfo.metadata.musicInfo
+    const availableQualities = qualityList.value[musicInfo.source] ?? []
 
     if (musicInfo.meta._qualitys) {
       const musicAvailableQualities = Object.keys(musicInfo.meta._qualitys)
@@ -308,7 +308,7 @@ const handleRefreshUrl = (downloadInfo: LX.Download.ListItem) => {
     isRefresh: true,
     quality: downloadInfo.metadata.quality,
     allowToggleSource: false,
-  }) : Promise.reject(new Error('not found'))).catch(() => {
+  }) : Promise.reject(new Error('not found'))).catch(async() => {
     return getMusicUrl({
       musicInfo: downloadInfo.metadata.musicInfo,
       isRefresh: true,

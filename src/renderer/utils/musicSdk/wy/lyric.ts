@@ -73,7 +73,7 @@ const parseTools = {
       .toString()
       .padStart(2, '0')
     timeMs %= 60
-    let s = parseInt(timeMs as any).toString().padStart(2, '0')
+    let s = parseInt(timeMs).toString().padStart(2, '0')
     return `[${m}:${s}.${ms}]`
   },
   parseLyric(lines: any[]) {
@@ -157,9 +157,9 @@ const parseTools = {
         const lrcLine = lrcLines.shift()
         const lrcLineResult = timeRxp.exec(lrcLine)
         if (!lrcLineResult) continue
-        const t2 = this.getIntv(lrcLineResult![1])
+        const t2 = this.getIntv(lrcLineResult[1])
         if (Math.abs(t1 - t2) < 100) {
-          const lrc = line.replace(timeRxp, lrcLineResult![0]).trim()
+          const lrc = line.replace(timeRxp, lrcLineResult[0]).trim()
           if (!lrc) continue
           newLrc.push(lrc)
           break
@@ -261,10 +261,11 @@ const fixTimeLabel = (lrc: any, tlrc: any, romalrc: any) => {
     if (newLrc != lrc || newTlrc != tlrc) {
       lrc = newLrc
       tlrc = newTlrc
-      if (romalrc)
+      if (romalrc) {
         romalrc = romalrc
           .replace(/\[(\d{2}:\d{2}):(\d{2,3})]/g, '[$1.$2]')
           .replace(/\[(\d{2}:\d{2}\.\d{2})0]/g, '[$1]')
+      }
     }
   }
 
@@ -284,7 +285,7 @@ export default (songmid: any) => {
     ytv: 0,
     yrv: 0,
   })
-  requestObj.promise = requestObj.promise.then(({ body }: any) => {
+  requestObj.promise = requestObj.promise.then(async({ body }: any) => {
     // console.log(body)
     if (body.code !== 200 || !body?.lrc?.lyric) return Promise.reject(new Error('Get lyric failed'))
     const fixTimeLabelLrc = fixTimeLabel(body.lrc.lyric, body.tlyric?.lyric, body.romalrc?.lyric)
@@ -294,7 +295,7 @@ export default (songmid: any) => {
       body.yromalrc?.lyric,
       fixTimeLabelLrc.lrc,
       fixTimeLabelLrc.tlrc,
-      fixTimeLabelLrc.romalrc
+      fixTimeLabelLrc.romalrc,
     )
     // console.log(info)
     if (!info.lyric) return Promise.reject(new Error('Get lyric failed'))

@@ -33,7 +33,7 @@ export default {
       statusCode,
     } = await requestObj_listDetailLink.promise
     if (statusCode > 400) return this.handleParseId(link, ++retryNum)
-    const url = location == null ? link : location
+    const url = location ?? link
     return this.regExps.listDetailLink.test(url)
       ? url.replace(this.regExps.listDetailLink, '$1')
       : url.replace(this.regExps.listDetailLink2, '$1')
@@ -81,8 +81,7 @@ export default {
       }),
     })
     const { statusCode, body } = await requestObj_listDetail.promise
-    if (statusCode !== 200 || body.code !== this.successCode)
-      return this.getListDetail(id, page, ++tryNum)
+    if (statusCode !== 200 || body.code !== this.successCode) { return this.getListDetail(id, page, ++tryNum) }
     let limit = 1000
     let rangeStart = (page - 1) * limit
     // console.log(body)
@@ -93,7 +92,7 @@ export default {
       try {
         list = (
           await musicDetailApi.getList(
-            body.playlist.trackIds.slice(rangeStart, limit * page).map((trackId: any) => trackId.id)
+            body.playlist.trackIds.slice(rangeStart, limit * page).map((trackId: any) => trackId.id),
           )
         ).list
       } catch (err: any) {
@@ -297,7 +296,7 @@ export default {
     }))
   },
 
-  getTags() {
+  async getTags() {
     return Promise.all([this.getTag(), this.getHotTag()]).then(([tags, hotTag]) => ({
       tags,
       hotTag,

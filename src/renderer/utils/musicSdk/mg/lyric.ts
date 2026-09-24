@@ -1,6 +1,6 @@
-import {httpFetch} from '../../request'
-import {getMusicInfo} from './musicInfo'
-import {decrypt} from './utils/mrc'
+import { httpFetch } from '../../request'
+import { getMusicInfo } from './musicInfo'
+import { decrypt } from './utils/mrc'
 
 const mrcTools = {
   rxps: {
@@ -8,7 +8,7 @@ const mrcTools = {
     wordTime: /\(\d+,\d+\)/,
     wordTimeAll: /(\(\d+,\d+\))/g,
   },
-  parseLyric(str: string): { lyric: string; lxlyric: string } {
+  parseLyric(str: string): { lyric: string, lxlyric: string } {
     str = str.replace(/\r/g, '')
     const lines = str.split('\n')
     const lxlrcLines: string[] = []
@@ -21,13 +21,13 @@ const mrcTools = {
 
       const startTime = parseInt(result[1])
       let time: number | string = startTime
-      let ms = ((time as number) % 1000).toString().padStart(3, '0')
-      time = (time as number) / 1000
-      let m = Math.floor((time as number) / 60)
+      let ms = ((time) % 1000).toString().padStart(3, '0')
+      time = (time) / 1000
+      let m = Math.floor((time) / 60)
         .toString()
         .padStart(2, '0')
-      time = (time as number) % 60
-      let s = Math.floor(time as number).toString().padStart(2, '0')
+      time = (time) % 60
+      let s = Math.floor(time).toString().padStart(2, '0')
       time = `${m}:${s}.${ms}`
 
       let words = line.replace(this.rxps.lineTime, '')
@@ -49,7 +49,7 @@ const mrcTools = {
       lxlyric: lxlrcLines.join('\n'),
     }
   },
-  getText(url: string, tryNum: number = 0): Promise<any> {
+  async getText(url: string, tryNum: number = 0): Promise<any> {
     const requestObj = httpFetch(url, {
       headers: {
         Referer: 'https://app.c.nf.migu.cn/',
@@ -64,15 +64,15 @@ const mrcTools = {
       return this.getText(url, ++tryNum)
     })
   },
-  async getMrc(url: string): Promise<{ lyric: string; lxlyric: string }> {
-    const text = await this.getText(url);
-    return this.parseLyric(decrypt(text));
+  async getMrc(url: string): Promise<{ lyric: string, lxlyric: string }> {
+    const text = await this.getText(url)
+    return this.parseLyric(decrypt(text))
   },
-  async getLrc(url: string): Promise<{ lxlyric: string; lyric: string }> {
-    const text = await this.getText(url);
-    return ({lxlyric: '', lyric: text});
+  async getLrc(url: string): Promise<{ lxlyric: string, lyric: string }> {
+    const text = await this.getText(url)
+    return ({ lxlyric: '', lyric: text })
   },
-  getTrc(url: string): Promise<string> {
+  async getTrc(url: string): Promise<string> {
     if (!url) return Promise.resolve('')
     return this.getText(url)
   },
@@ -81,14 +81,14 @@ const mrcTools = {
   },
   getLyric(songInfo: any): any {
     return {
-      promise: this.getMusicInfo(songInfo).then(async (info: any) => {
+      promise: this.getMusicInfo(songInfo).then(async(info: any) => {
         let p: Promise<any> | undefined
         if (info.mrcUrl) p = this.getMrc(info.mrcUrl)
         else if (info.lrcUrl) p = this.getLrc(info.lrcUrl)
         if (p == null) return Promise.reject(new Error('获取歌词失败'))
-        const [lrcInfo, tlyric] = await Promise.all([p, this.getTrc(info.trcUrl)]);
-        lrcInfo.tlyric = tlyric;
-        return lrcInfo;
+        const [lrcInfo, tlyric] = await Promise.all([p, this.getTrc(info.trcUrl)])
+        lrcInfo.tlyric = tlyric
+        return lrcInfo
       }),
       cancelHttp() {},
     }

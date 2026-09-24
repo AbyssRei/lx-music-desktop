@@ -86,14 +86,14 @@ export default {
     listData: /global\.features = (\[.+\]);/,
   },
   _requestBoardsObj: null as any,
-  getBoardsData(): Promise<any> {
+  async getBoardsData(): Promise<any> {
     if (this._requestBoardsObj) this._requestBoardsObj.cancelHttp()
     this._requestBoardsObj = httpFetch(
-      'http://mobilecdnbj.kugou.com/api/v5/rank/list?version=9108&plat=0&showtype=2&parentid=0&apiver=6&area_code=1&withsong=1'
+      'http://mobilecdnbj.kugou.com/api/v5/rank/list?version=9108&plat=0&showtype=2&parentid=0&apiver=6&area_code=1&withsong=1',
     )
     return this._requestBoardsObj.promise
   },
-  getData(url: string): Promise<any> {
+  async getData(url: string): Promise<any> {
     const requestDataObj = httpFetch(url)
     return requestDataObj.promise
   },

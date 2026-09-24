@@ -70,8 +70,10 @@ const applyEmoji = (text: any) => {
   return text
 }
 
+const cache: Record<string, any> = {}
+
 let cursorTools = {
-  cache: {} as Record<string, any>,
+  cache,
   getCursor(id: any, page: any, limit: any) {
     let cacheData = this.cache[id]
     if (!cacheData) cacheData = this.cache[id] = {}
@@ -203,7 +205,7 @@ export default {
         reply: [],
       }
 
-      let replyData = item.beReplied && item.beReplied[0]
+      let replyData = item.beReplied?.[0]
       return replyData
         ? {
             id: item.commentId,

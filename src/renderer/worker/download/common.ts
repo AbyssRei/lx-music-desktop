@@ -19,12 +19,12 @@ export const writeMeta = (
     APIC: string | null
   },
   lyric: LX.Music.LyricInfo,
-  proxy?: { host: string; port: number }
+  proxy?: { host: string, port: number },
 ) => {
   setMeta(
     filePath,
     { ...meta, lyrics: buildLyrics(lyric, isEmbedLyricLx, isEmbedLyricT, isEmbedLyricR) },
-    proxy
+    proxy,
   )
 }
 

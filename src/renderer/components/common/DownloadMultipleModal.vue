@@ -71,7 +71,7 @@ export default {
       void createDownloadTasks(
         this.list.filter((item) => item.source != 'local'),
         quality,
-        this.listId
+        this.listId,
       )
       this.handleClose()
       this.$emit('confirm')

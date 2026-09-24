@@ -24,7 +24,7 @@ const kg = {
   // getLyric(songInfo) {
   //   return apis('kg').getLyric(songInfo)
   // },
-  getPic(songInfo: any): Promise<string> {
+  async getPic(songInfo: any): Promise<string> {
     return pic.getPic(songInfo)
   },
   getMusicDetailPageUrl(songInfo: any): string {

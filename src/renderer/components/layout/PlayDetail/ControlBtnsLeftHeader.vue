@@ -43,7 +43,7 @@ const handle_mouseleave = () => {
 
 let removeMaximizeListener: (() => void) | null = null
 
-onMounted(async () => {
+onMounted(async() => {
   window.app_event.on('focus', handle_focus)
   dom_btns.value.addEventListener('mouseenter', handle_mouseenter)
   dom_btns.value.addEventListener('mouseleave', handle_mouseleave)

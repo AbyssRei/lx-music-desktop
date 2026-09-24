@@ -1,6 +1,6 @@
-import {httpFetch} from '../../request'
-import {decodeName, formatPlayTime} from '../../index'
-import {formatSinger, objStr2JSON} from './util'
+import { httpFetch } from '../../request'
+import { decodeName, formatPlayTime } from '../../index'
+import { formatSinger, objStr2JSON } from './util'
 import album from './album'
 
 export default {
@@ -30,9 +30,8 @@ export default {
     'http://wapi.kuwo.cn/api/pc/classify/playlist/getTagList?cmd=rcm_keyword_playlist&user=0&prod=kwplayer_pc_9.0.5.0&vipver=9.0.5.0&source=kwplayer_pc_9.0.5.0&loginUid=0&loginSid=0&appUid=76039576',
   hotTagUrl:
     'http://wapi.kuwo.cn/api/pc/classify/playlist/getRcmTagList?loginUid=0&loginSid=0&appUid=76039576',
-  getListUrl({sortId, id, type, page}: {sortId: string; id: string | null; type?: string; page: number}): string | undefined {
-    if (!id)
-      return `http://wapi.kuwo.cn/api/pc/classify/playlist/getRcmPlayList?loginUid=0&loginSid=0&appUid=76039576&&pn=${page}&rn=${this.limit_list}&order=${sortId}`
+  getListUrl({ sortId, id, type, page }: { sortId: string, id: string | null, type?: string, page: number }): string | undefined {
+    if (!id) { return `http://wapi.kuwo.cn/api/pc/classify/playlist/getRcmPlayList?loginUid=0&loginSid=0&appUid=76039576&&pn=${page}&rn=${this.limit_list}&order=${sortId}` }
     switch (type) {
       case '10000':
         return `http://wapi.kuwo.cn/api/pc/classify/playlist/getTagPlayList?loginUid=0&loginSid=0&appUid=76039576&pn=${page}&id=${id}&rn=${this.limit_list}`
@@ -51,21 +50,21 @@ export default {
 
   // http://nplserver.kuwo.cn/pl.svc?op=getlistinfo&pid=2849349915&pn=0&rn=100&encode=utf8&keyset=pl2012&identity=kuwo&pcmp4=1&vipver=MUSIC_9.0.5.0_W1&newver=1
   // 获取标签
-  getTag(tryNum: number = 0): Promise<any> {
+  async getTag(tryNum: number = 0): Promise<any> {
     if (this._requestObj_tags) this._requestObj_tags.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     this._requestObj_tags = httpFetch(this.tagsUrl)
-    return this._requestObj_tags.promise.then(({body}: {body: any}) => {
+    return this._requestObj_tags.promise.then(async({ body }: { body: any }) => {
       if (body.code !== this.successCode) return this.getTag(++tryNum)
       return this.filterTagInfo(body.data)
     })
   },
   // 获取标签
-  getHotTag(tryNum: number = 0): Promise<any> {
+  async getHotTag(tryNum: number = 0): Promise<any> {
     if (this._requestObj_hotTags) this._requestObj_hotTags.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     this._requestObj_hotTags = httpFetch(this.hotTagUrl)
-    return this._requestObj_hotTags.promise.then(({body}: {body: any}) => {
+    return this._requestObj_hotTags.promise.then(async({ body }: { body: any }) => {
       if (body.code !== this.successCode) return this.getHotTag(++tryNum)
       return this.filterInfoHotTag(body.data[0].data)
     })
@@ -91,7 +90,7 @@ export default {
   },
 
   // 获取列表数据
-  getList(sortId: string, tagId: string, page: number, tryNum: number = 0): Promise<any> {
+  async getList(sortId: string, tagId: string, page: number, tryNum: number = 0): Promise<any> {
     if (this._requestObj_list) this._requestObj_list.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     let id: string | null
@@ -103,8 +102,8 @@ export default {
     } else {
       id = null
     }
-    this._requestObj_list = httpFetch(this.getListUrl({sortId, id, type, page})!)
-    return this._requestObj_list.promise.then(({body}: {body: any}) => {
+    this._requestObj_list = httpFetch(this.getListUrl({ sortId, id, type, page })!)
+    return this._requestObj_list.promise.then(async({ body }: { body: any }) => {
       if (!id || type == '10000') {
         if (body.code !== this.successCode) return this.getList(sortId, tagId, page, ++tryNum)
         return {
@@ -174,11 +173,11 @@ export default {
     return list
   },
 
-  getListDetailDigest8(id: string, page: number, tryNum: number = 0): Promise<any> {
+  async getListDetailDigest8(id: string, page: number, tryNum: number = 0): Promise<any> {
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
 
     const requestObj = httpFetch(this.getListDetailUrl(id, page))
-    return requestObj.promise.then(({body}: {body: any}) => {
+    return requestObj.promise.then(async({ body }: { body: any }) => {
       if (body.result !== 'ok') return this.getListDetail(id, page, ++tryNum)
       return {
         list: this.filterListDetail(body.musiclist),
@@ -196,25 +195,25 @@ export default {
       }
     })
   },
-  getListDetailDigest5Info(id: string, tryNum: number = 0): Promise<any> {
+  async getListDetailDigest5Info(id: string, tryNum: number = 0): Promise<any> {
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     const requestObj = httpFetch(
-      `http://qukudata.kuwo.cn/q.k?op=query&cont=ninfo&node=${id}&pn=0&rn=1&fmt=json&src=mbox&level=2`
+      `http://qukudata.kuwo.cn/q.k?op=query&cont=ninfo&node=${id}&pn=0&rn=1&fmt=json&src=mbox&level=2`,
     )
-    return requestObj.promise.then(({statusCode, body}: {statusCode: number; body: any}) => {
+    return requestObj.promise.then(({ statusCode, body }: { statusCode: number, body: any }) => {
       if (statusCode != 200 || !body.child) return this.getListDetail(id, ++tryNum)
       // console.log(body)
       return body.child.length ? body.child[0].sourceid : null
     })
   },
-  getListDetailDigest5Music(id: string, page: number, tryNum: number = 0): Promise<any> {
+  async getListDetailDigest5Music(id: string, page: number, tryNum: number = 0): Promise<any> {
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     const requestObj = httpFetch(
       `http://nplserver.kuwo.cn/pl.svc?op=getlistinfo&pid=${id}&pn=${page - 1}}&rn=${
         this.limit_song
-      }&encode=utf-8&keyset=pl2012&identity=kuwo&pcmp4=1`
+      }&encode=utf-8&keyset=pl2012&identity=kuwo&pcmp4=1`,
     )
-    return requestObj.promise.then(({body}: {body: any}) => {
+    return requestObj.promise.then(async({ body }: { body: any }) => {
       // console.log(body)
       if (body.result !== 'ok') return this.getListDetail(id, page, ++tryNum)
       return {
@@ -246,27 +245,27 @@ export default {
         info.size = info.size?.toLocaleUpperCase()
         switch (info.bitrate) {
           case '2090':
-            types.push({type: 'flac24bit', size: info.size})
+            types.push({ type: 'flac24bit', size: info.size })
           case '4000':
-            types.push({type: 'hires', size: info.size})
+            types.push({ type: 'hires', size: info.size })
             _types.hires = {
               size: info.size,
             }
             break
           case '2000':
-            types.push({type: 'flac', size: info.size})
+            types.push({ type: 'flac', size: info.size })
             _types.flac = {
               size: info.size,
             }
             break
           case '320':
-            types.push({type: '320k', size: info.size})
+            types.push({ type: '320k', size: info.size })
             _types['320k'] = {
               size: info.size,
             }
             break
           case '128':
-            types.push({type: '128k', size: info.size})
+            types.push({ type: '128k', size: info.size })
             _types['128k'] = {
               size: info.size,
             }
@@ -301,7 +300,7 @@ export default {
     return t() + t() + t() + t() + t() + t() + t() + t()
   },
   async getListDetailMusicListByBDListInfo(id: string, source: string): Promise<any> {
-    const {body: infoData} = await httpFetch(
+    const { body: infoData } = await httpFetch(
       `https://bd-api.kuwo.cn/api/service/playlist/info/${id}?reqId=${this.getReqId()}&source=${source}`,
       {
         headers: {
@@ -309,8 +308,8 @@ export default {
             'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
           plat: 'h5',
         },
-      }
-    ).promise.catch(() => ({code: 0}))
+      },
+    ).promise.catch(() => ({ code: 0 }))
 
     if (infoData.code != 200) return null
 
@@ -323,7 +322,7 @@ export default {
     }
   },
   async getListDetailMusicListByBDUserPub(id: string): Promise<any> {
-    const {body: infoData} = await httpFetch(
+    const { body: infoData } = await httpFetch(
       `https://bd-api.kuwo.cn/api/ucenter/users/pub/${id}?reqId=${this.getReqId()}`,
       {
         headers: {
@@ -331,8 +330,8 @@ export default {
             'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
           plat: 'h5',
         },
-      }
-    ).promise.catch(() => ({code: 0}))
+      },
+    ).promise.catch(() => ({ code: 0 }))
 
     if (infoData.code != 200) return null
 
@@ -346,7 +345,7 @@ export default {
     }
   },
   async getListDetailMusicListByBDList(id: string, source: string, page: number, tryNum: number = 0): Promise<any> {
-    const {body: listData} = await httpFetch(
+    const { body: listData } = await httpFetch(
       `https://bd-api.kuwo.cn/api/service/playlist/${id}/musicList?reqId=${this.getReqId()}&source=${source}&pn=${page}&rn=${
         this.limit_song
       }`,
@@ -356,8 +355,8 @@ export default {
             'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36',
           plat: 'h5',
         },
-      }
-    ).promise.catch(() => {
+      },
+    ).promise.catch(async() => {
       if (tryNum > 2) return Promise.reject(new Error('try max num'))
       return this.getListDetailMusicListByBDList(id, source, page, ++tryNum)
     })
@@ -400,11 +399,11 @@ export default {
   },
 
   // 获取歌曲列表内的音乐
-  getListDetail(id: string, page: number, retryNum: number = 0): Promise<any> {
+  async getListDetail(id: string, page: number, retryNum: number = 0): Promise<any> {
     // console.log(id)
     // https://h5app.kuwo.cn/m/bodian/collection.html?uid=000&playlistId=000&source=5&ownerId=000
     // https://h5app.kuwo.cn/m/bodian/collection.html?uid=000&playlistId=000&source=4&ownerId=
-    if (/\/bodian\//.test(id)) return this.getListDetailMusicListByBD(id, page)
+    if (id.includes('/bodian/')) return this.getListDetailMusicListByBD(id, page)
     if (/[?&:/]/.test(id)) id = id.replace(this.regExps.listDetailLink, '$1')
     else if (/^digest-/.test(id)) {
       let [digest, _id] = id.split('__')
@@ -433,45 +432,45 @@ export default {
         if (info) {
           switch (info[2]) {
             case '20900':
-              types.push({type: 'master', size: info[4]})
+              types.push({ type: 'master', size: info[4] })
               _types.master = {
                 size: info[4].toLocaleUpperCase(),
               }
               break
             case '20501':
-              types.push({type: 'atmos_plus', size: info[4]})
+              types.push({ type: 'atmos_plus', size: info[4] })
               _types.atmos_plus = {
                 size: info[4].toLocaleUpperCase(),
               }
               break
             case '20201':
-              types.push({type: 'atmos', size: info[4]})
+              types.push({ type: 'atmos', size: info[4] })
               _types.atmos = {
                 size: info[4].toLocaleUpperCase(),
               }
               break
             case '2090':
-              types.push({type: 'flac24bit', size: info[4]})
+              types.push({ type: 'flac24bit', size: info[4] })
             case '4000':
-              types.push({type: 'hires', size: info[4]})
+              types.push({ type: 'hires', size: info[4] })
               _types.hires = {
                 size: info[4].toLocaleUpperCase(),
               }
               break
             case '2000':
-              types.push({type: 'flac', size: info[4]})
+              types.push({ type: 'flac', size: info[4] })
               _types.flac = {
                 size: info[4].toLocaleUpperCase(),
               }
               break
             case '320':
-              types.push({type: '320k', size: info[4]})
+              types.push({ type: '320k', size: info[4] })
               _types['320k'] = {
                 size: info[4].toLocaleUpperCase(),
               }
               break
             case '128':
-              types.push({type: '128k', size: info[4]})
+              types.push({ type: '128k', size: info[4] })
               _types['128k'] = {
                 size: info[4].toLocaleUpperCase(),
               }
@@ -498,7 +497,7 @@ export default {
       }
     })
   },
-  getTags(): Promise<any> {
+  async getTags(): Promise<any> {
     return Promise.all([this.getTag(), this.getHotTag()]).then(([tags, hotTag]) => ({
       tags,
       hotTag,
@@ -514,12 +513,12 @@ export default {
     return `http://www.kuwo.cn/playlist_detail/${id}`
   },
 
-  search(text: string, page: number, limit: number = 20): Promise<any> {
+  async search(text: string, page: number, limit: number = 20): Promise<any> {
     return httpFetch(
       `http://search.kuwo.cn/r.s?all=${encodeURIComponent(text)}&pn=${
         page - 1
-      }&rn=${limit}&rformat=json&encoding=utf8&ver=mbox&vipver=MUSIC_8.7.7.0_BCS37&plat=pc&devid=28156413&ft=playlist&pay=0&needliveshow=0`
-    ).promise.then(({body}: {body: any}) => {
+      }&rn=${limit}&rformat=json&encoding=utf8&ver=mbox&vipver=MUSIC_8.7.7.0_BCS37&plat=pc&devid=28156413&ft=playlist&pay=0&needliveshow=0`,
+    ).promise.then(({ body }: { body: any }) => {
       body = objStr2JSON(body)
       // console.log(body)
       return {

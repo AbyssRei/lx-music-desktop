@@ -1,6 +1,6 @@
 // import { decodeName } from '../../index'
 // import { tokenRequest } from './util'
-import {httpFetch} from '../../request'
+import { httpFetch } from '../../request'
 
 export default {
   regExps: {
@@ -16,9 +16,9 @@ export default {
       `https://tips.kuwo.cn/t.s?corp=kuwo&newver=3&p2p=1&notrace=0&c=mbox&w=${encodeURIComponent(str)}&encoding=utf8&rformat=json`,
       {
         Referer: 'http://www.kuwo.cn/',
-      }
+      },
     )
-    return this.requestObj.promise.then(({body, statusCode}: {body: any; statusCode: number}) => {
+    return this.requestObj.promise.then(({ body, statusCode }: { body: any, statusCode: number }) => {
       if (statusCode != 200 || !body.WORDITEMS) return Promise.reject(new Error('请求失败'))
       return body.WORDITEMS
     })
@@ -27,7 +27,7 @@ export default {
     return rawData.map((item: any) => item.RELWORD)
   },
   cancelTipSearch(): void {
-    if (this.requestObj && this.requestObj.cancelHttp) this.requestObj.cancelHttp()
+    if (this.requestObj?.cancelHttp) this.requestObj.cancelHttp()
   },
   async search(str: string): Promise<string[]> {
     return this.tipSearchBySong(str).then((result: any[]) => this.handleResult(result))

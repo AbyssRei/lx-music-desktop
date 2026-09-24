@@ -71,7 +71,7 @@ const winEvent = () => {
   browserWindow.on('hide', () => {
     global.lx.event_app.main_window_hide()
   })
-  
+
   browserWindow.on('maximize', () => {
     sendMaximizeStateChange(true)
   })
@@ -139,8 +139,7 @@ export const createWindow = () => {
     },
   }
 
-  if (global.envParams.cmdParams.dt)
-    options.backgroundColor = theme.colors['--color-primary-light-1000']
+  if (global.envParams.cmdParams.dt) { options.backgroundColor = theme.colors['--color-primary-light-1000'] }
   if (global.lx.appSetting['common.startInFullscreen']) {
     options.fullscreen = true
     if (isLinux) options.resizable = true
@@ -153,7 +152,7 @@ export const createWindow = () => {
       : `file://${path.join(encodePath(__dirname), 'index.html')}`
   void browserWindow.loadURL(
     winURL +
-      `?os=${getPlatform()}&osver=${encodeURIComponent(getOSVersion())}&dt=${global.envParams.cmdParams.dt}&dark=${shouldUseDarkColors}&theme=${encodeURIComponent(JSON.stringify(theme))}`
+      `?os=${getPlatform()}&osver=${encodeURIComponent(getOSVersion())}&dt=${global.envParams.cmdParams.dt}&dark=${shouldUseDarkColors}&theme=${encodeURIComponent(JSON.stringify(theme))}`,
   )
 
   winEvent()

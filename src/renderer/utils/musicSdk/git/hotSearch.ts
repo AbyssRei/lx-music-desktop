@@ -2,10 +2,10 @@ import { loadDatabase, extractNameFromFile } from './util'
 
 export default {
   _requestObj: null as any,
-  _cacheData: null as { source: string; list: unknown[] } | null,
+  _cacheData: null as { source: string, list: unknown[] } | null,
   _cacheTime: 0,
 
-  async getList(retryNum: number = 0): Promise<{ source: string; list: unknown[] }> {
+  async getList(retryNum: number = 0): Promise<{ source: string, list: unknown[] }> {
     if (retryNum > 2) {
       return Promise.reject(new Error('获取热搜失败，请稍后重试'))
     }
@@ -60,7 +60,6 @@ export default {
 
       return result
     } catch (error: any) {
-
       // 重试
       if (
         error.message &&

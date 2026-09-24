@@ -8,11 +8,9 @@ interface QualityType {
   size: string
 }
 
-interface QualityTypes {
-  [key: string]: { size: string }
-}
+type QualityTypes = Record<string, { size: string }>
 
-export const getMusicQualityInfo = (id: string | number): { requestObj: any; types: QualityType[]; _types: QualityTypes } => {
+export const getMusicQualityInfo = (id: string | number): { requestObj: any, types: QualityType[], _types: QualityTypes } => {
   const requestObj: any = httpFetch(`https://music.163.com/api/song/music/detail/get?songId=${id}`, {
     method: 'get',
     timeout,
@@ -24,49 +22,49 @@ export const getMusicQualityInfo = (id: string | number): { requestObj: any; typ
   const types: QualityType[] = []
   const _types: QualityTypes = {}
 
-  requestObj.promise = requestObj.promise.then(({ statusCode, body }: { statusCode: number; body: any }) => {
+  requestObj.promise = requestObj.promise.then(async({ statusCode, body }: { statusCode: number, body: any }) => {
     if (statusCode != 200 && body.code != 200) return Promise.reject(new Error('获取音质信息失败'))
 
     const data = body.data
 
     types.length = 0
-    Object.keys(_types).forEach((key) => delete _types[key])
+    Object.keys(_types).forEach((key) => Reflect.deleteProperty(_types, key))
 
-    if (data.l != null && data.l.size != null) {
+    if (data.l?.size != null) {
       let size = sizeFormate(data.l.size)
       types.push({ type: '128k', size })
       _types['128k'] = { size }
-    } else if (data.m != null && data.m.size != null) {
+    } else if (data.m?.size != null) {
       let size = sizeFormate(data.m.size)
       types.push({ type: '128k', size })
       _types['128k'] = { size }
     }
 
-    if (data.h != null && data.h.size != null) {
+    if (data.h?.size != null) {
       let size = sizeFormate(data.h.size)
       types.push({ type: '320k', size })
       _types['320k'] = { size }
     }
 
-    if (data.sq != null && data.sq.size != null) {
+    if (data.sq?.size != null) {
       let size = sizeFormate(data.sq.size)
       types.push({ type: 'flac', size })
       _types.flac = { size }
     }
 
-    if (data.hr != null && data.hr.size != null) {
+    if (data.hr?.size != null) {
       let size = sizeFormate(data.hr.size)
       types.push({ type: 'hires', size })
       _types.hires = { size }
     }
 
-    if (data.jm != null && data.jm.size != null) {
+    if (data.jm?.size != null) {
       let size = sizeFormate(data.jm.size)
       types.push({ type: 'master', size })
       _types.master = { size }
     }
 
-    if (data.je != null && data.je.size != null) {
+    if (data.je?.size != null) {
       let size = sizeFormate(data.je.size)
       types.push({ type: 'atmos', size })
       _types.atmos = { size }
@@ -78,7 +76,7 @@ export const getMusicQualityInfo = (id: string | number): { requestObj: any; typ
   return { requestObj, types, _types }
 }
 
-export const getBatchMusicQualityInfo = async (idList: (string | number)[]): Promise<Record<string, { types: QualityType[]; _types: QualityTypes }>> => {
+export const getBatchMusicQualityInfo = async(idList: Array<string | number>): Promise<Record<string, { types: QualityType[], _types: QualityTypes }>> => {
   const ids = idList.filter((id) => id)
 
   const qualityPromises = ids.map((id) => {
@@ -91,7 +89,7 @@ export const getBatchMusicQualityInfo = async (idList: (string | number)[]): Pro
 
   const qualityResults = await Promise.all(qualityPromises)
 
-  const qualityInfoMap: Record<string, { types: QualityType[]; _types: QualityTypes }> = {}
+  const qualityInfoMap: Record<string, { types: QualityType[], _types: QualityTypes }> = {}
   ids.forEach((id, index) => {
     qualityInfoMap[id as string] = qualityResults[index] || { types: [], _types: {} }
   })

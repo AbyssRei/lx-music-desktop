@@ -48,15 +48,15 @@ const boardList = [
   { id: 'kw__151', name: '腾讯音乐人原创榜', bangid: '151' },
 ]
 
-const sortQualityArray = (array: { type: string; size: string }[]): { type: string; size: string }[] => {
+const sortQualityArray = (array: Array<{ type: string, size: string }>): Array<{ type: string, size: string }> => {
   const qualityMap: Record<string, number> = {
     hires: 4,
     flac: 3,
     '320k': 2,
     '128k': 1,
   }
-  const rawQualityArray: { type: number; index: number }[] = []
-  const newQualityArray: { type: string; size: string }[] = []
+  const rawQualityArray: Array<{ type: number, index: number }> = []
+  const newQualityArray: Array<{ type: string, size: string }> = []
 
   array.forEach((item, index: number) => {
     const type = qualityMap[item.type]
@@ -141,17 +141,17 @@ export default {
   getBoardsData(): any {
     if (this._requestBoardsObj) this._requestBoardsObj.cancelHttp()
     this._requestBoardsObj = httpFetch(
-      'http://qukudata.kuwo.cn/q.k?op=query&cont=tree&node=2&pn=0&rn=1000&fmt=json&level=2'
+      'http://qukudata.kuwo.cn/q.k?op=query&cont=tree&node=2&pn=0&rn=1000&fmt=json&level=2',
     )
     return this._requestBoardsObj.promise
   },
-  getData(url: string): Promise<any> {
+  async getData(url: string): Promise<any> {
     const requestDataObj = httpFetch(url)
     return requestDataObj.promise
   },
   filterData(rawList: any[]): any[] {
     return rawList.map((item: any) => {
-      let types: { type: string; size: string }[] = []
+      let types: Array<{ type: string, size: string }> = []
       const _types: Record<string, { size: string }> = {}
       const qualitys = new Set<string>()
 
@@ -171,7 +171,7 @@ export default {
             _types.master = { size }
             break
           case '2090':
-            types.push({type: 'flac24bit', size: size})
+            types.push({ type: 'flac24bit', size })
           case '4000':
             types.push({ type: 'hires', size })
             _types.hires = { size }
@@ -210,9 +210,9 @@ export default {
     })
   },
 
-  filterBoardsData(rawList: any[]): { id: string; name: string; bangid: string }[] {
+  filterBoardsData(rawList: any[]): Array<{ id: string, name: string, bangid: string }> {
     // console.log(rawList)
-    let list: { id: string; name: string; bangid: string }[] = []
+    let list: Array<{ id: string, name: string, bangid: string }> = []
     for (const board of rawList) {
       if (board.source != '1') continue
       list.push({
@@ -248,7 +248,7 @@ export default {
     }
   },
 
-  getList(id: string, page: number, retryNum: number = 0): Promise<any> {
+  async getList(id: string, page: number, retryNum: number = 0): Promise<any> {
     if (++retryNum > 3) return Promise.reject(new Error('try max num'))
 
     const requestBody = {
@@ -264,12 +264,11 @@ export default {
     const requestUrl = `https://wbd.kuwo.cn/api/bd/bang/bang_info?${wbdCrypto.buildParam(requestBody)}`
     const request = httpFetch(requestUrl).promise
 
-    return request.then(({ statusCode, body }: { statusCode: number; body: any }) => {
+    return request.then(async({ statusCode, body }: { statusCode: number, body: any }) => {
       const rawData = wbdCrypto.decodeData(body)
       // console.log(rawData)
       const data = rawData.data
-      if (statusCode !== 200 || rawData.code != 200 || !data.musiclist)
-        return this.getList(id, page, retryNum)
+      if (statusCode !== 200 || rawData.code != 200 || !data.musiclist) { return this.getList(id, page, retryNum) }
 
       const total = parseInt(data.total)
       const list = this.filterData(data.musiclist)

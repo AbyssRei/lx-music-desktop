@@ -25,7 +25,7 @@ export const signatureParams = (params: string, platform: string = 'android', bo
  * @param {*} options
  * @param {*} retryNum
  */
-export const createHttpFetch = async (url: string, options?: any, retryNum: number = 0): Promise<any> => {
+export const createHttpFetch = async(url: string, options?: any, retryNum: number = 0): Promise<any> => {
   if (retryNum > 2) throw new Error('try max num')
   let result: any
   try {
@@ -38,8 +38,7 @@ export const createHttpFetch = async (url: string, options?: any, retryNum: numb
   if (
     result.statusCode !== 200 ||
     (result.body.error_code ?? result.body.errcode ?? result.body.err_code) != 0
-  )
-    return createHttpFetch(url, options, ++retryNum)
+  ) { return createHttpFetch(url, options, ++retryNum) }
   if (result.body.data) return result.body.data
   if (Array.isArray(result.body.info)) return result.body
   return result.body.info

@@ -1,5 +1,5 @@
 import { httpFetch } from '../../request'
-import { decodeName, formatPlayTime, sizeFormate, dateFormat, formatPlayCount } from '../../index'
+import { decodeName, formatPlayTime, dateFormat, formatPlayCount } from '../../index'
 import { formatSingerName } from '../utils'
 import { getBatchMusicQualityInfo } from './quality_detail'
 
@@ -67,21 +67,21 @@ export default {
 
   // http://nplserver.kuwo.cn/pl.svc?op=getlistinfo&pid=2849349915&pn=0&rn=100&encode=utf8&keyset=pl2012&identity=kuwo&pcmp4=1&vipver=MUSIC_9.0.5.0_W1&newver=1
   // 获取标签
-  getTag(tryNum: number = 0): Promise<any> {
+  async getTag(tryNum: number = 0): Promise<any> {
     if (this._requestObj_tags) this._requestObj_tags.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     this._requestObj_tags = httpFetch(this.tagsUrl)
-    return this._requestObj_tags.promise.then(({ body }: any) => {
+    return this._requestObj_tags.promise.then(async({ body }: any) => {
       if (body.code !== this.successCode) return this.getTag(++tryNum)
       return this.filterTagInfo(body.tags.data.v_group)
     })
   },
   // 获取标签
-  getHotTag(tryNum: number = 0): Promise<any> {
+  async getHotTag(tryNum: number = 0): Promise<any> {
     if (this._requestObj_hotTags) this._requestObj_hotTags.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     this._requestObj_hotTags = httpFetch(this.hotTagUrl)
-    return this._requestObj_hotTags.promise.then(({ statusCode, body }: any) => {
+    return this._requestObj_hotTags.promise.then(async({ statusCode, body }: any) => {
       if (statusCode !== 200) return this.getHotTag(++tryNum)
       return this.filterInfoHotTag(body)
     })
@@ -156,7 +156,7 @@ export default {
   },
 
   // 获取列表数据
-  getList(sortId: number, tagId: string | number | null, page: number, tryNum: number = 0): Promise<any> {
+  async getList(sortId: number, tagId: string | number | null, page: number, tryNum: number = 0): Promise<any> {
     if (this._requestObj_list) this._requestObj_list.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     if (!tagId) {
@@ -226,7 +226,7 @@ export default {
     }: any = await requestObj_listDetailLink.promise
     // console.log(headers)
     if (statusCode > 400) return this.handleParseId(link, ++retryNum)
-    return location == null ? link : location
+    return location ?? link
   },
 
   async getListId(id: string): Promise<string> {
@@ -372,7 +372,7 @@ export default {
       }
     })
   },
-  getTags(): Promise<any> {
+  async getTags(): Promise<any> {
     return Promise.all([this.getTag(), this.getHotTag()]).then(([tags, hotTag]) => ({
       tags,
       hotTag,
@@ -386,7 +386,7 @@ export default {
     return `https://y.qq.com/n/ryqq/playlist/${id}`
   },
 
-  search(text: string, page: number, limit: number = 20, retryNum: number = 0): Promise<any> {
+  async search(text: string, page: number, limit: number = 20, retryNum: number = 0): Promise<any> {
     if (retryNum > 5) throw new Error('max retry')
     return httpFetch(`http://c.y.qq.com/soso/fcgi-bin/client_music_search_songlist?page_no=${page - 1}&num_per_page=${limit}&format=json&query=${encodeURIComponent(text)}&remoteplace=txt.yqq.playlist&inCharset=utf8&outCharset=utf-8`, {
       headers: {
@@ -394,7 +394,7 @@ export default {
         Referer: 'http://y.qq.com/portal/search.html',
       },
     })
-      .promise.then(({ body }: any) => {
+      .promise.then(async({ body }: any) => {
         if (body.code != 0) return this.search(text, page, limit, ++retryNum)
         // console.log(body.data.list)
         return {

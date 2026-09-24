@@ -21,19 +21,19 @@ export const getHostIp = (hostname: string): IpResult | undefined => {
       all: false,
     },
     (err: NodeJS.ErrnoException | null, address: string, family: number) => {
-      if (err) return console.log(err)
+      if (err) { console.log(err); return }
       ipMap.set(hostname, { address, family })
-    }
+    },
   )
 }
 
 export const dnsLookup = (
   hostname: string,
   options: dns.LookupOptions,
-  callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void
+  callback: (err: NodeJS.ErrnoException | null, address: string, family: number) => void,
 ): void => {
   const result = getHostIp(hostname)
-  if (result) return callback(null, result.address, result.family)
+  if (result) { callback(null, result.address, result.family); return }
 
   dns.lookup(hostname, options, callback as any)
 }

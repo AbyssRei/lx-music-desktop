@@ -15,7 +15,7 @@ export default {
       musicInfo.songId = id
     }
     if (page === 1) this.lastCommentIds.clear()
-    const lastCommentId = this.lastCommentIds.get(String(page)) || ''
+    const lastCommentId = this.lastCommentIds.get(String(page)) ?? ''
     if (!lastCommentId && page > 1) throw new Error('获取评论失败')
     // const _requestObj = httpFetch(`https://music.migu.cn/v3/api/comment/listComments?targetId=${musicInfo.songId}&pageSize=${limit}&pageNo=${page}`, {
     const _requestObj = httpFetch(
@@ -26,7 +26,7 @@ export default {
             'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
           // Referer: 'https://music.migu.cn',
         },
-      }
+      },
     )
     const { body, statusCode } = await _requestObj.promise
     // console.log(body)
@@ -61,7 +61,7 @@ export default {
             'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
           // Referer: 'https://music.migu.cn',
         },
-      }
+      },
     )
     const { body, statusCode } = await _requestObj2.promise
     // console.log(body)
@@ -87,7 +87,7 @@ export default {
           'User-Agent':
             'Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1',
         },
-      }
+      },
     )
     const { body, statusCode } = await _requestObj3.promise
     if (statusCode != 200 || body.code !== '000000') throw new Error('获取回复评论失败')

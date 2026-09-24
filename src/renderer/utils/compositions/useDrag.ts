@@ -1,4 +1,4 @@
-// @ts-ignore
+// @ts-expect-error
 import Sortable, { AutoScroll } from 'sortablejs/modular/sortable.core.esm'
 import { onMounted, type Ref } from '@common/utils/vueTools'
 import { clearDownKeys } from '@renderer/event'
@@ -58,7 +58,7 @@ export default ({
   })
 
   return {
-    setDisabled(enable: boolean): void {
+    setDisabled: (enable: boolean): void => {
       if (!sortable) return
       sortable.option('disabled', enable)
     },

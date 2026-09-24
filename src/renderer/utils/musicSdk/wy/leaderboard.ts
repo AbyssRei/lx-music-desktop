@@ -183,13 +183,12 @@ export default {
         return this.getList(bangid, page, retryNum)
       }
     }
-    if (resp.statusCode !== 200 || resp.body.code !== 200)
-      return this.getList(bangid, page, retryNum)
+    if (resp.statusCode !== 200 || resp.body.code !== 200) { return this.getList(bangid, page, retryNum) }
     // console.log(resp.body)
     let musicDetail
     try {
       musicDetail = await musicDetailApi.getList(
-        resp.body.playlist.trackIds.map((trackId: any) => trackId.id)
+        resp.body.playlist.trackIds.map((trackId: any) => trackId.id),
       )
     } catch (err: any) {
       console.log(err)

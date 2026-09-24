@@ -32,7 +32,7 @@ let proxyAgent: ProxyAgent | null = null
 let globalDispatcher = getGlobalDispatcher()
 const buildDispatcher = (
   redirectDispatcher: Dispatcher.DispatcherComposeInterceptor | null,
-  retryNum = 3
+  retryNum = 3,
 ) => {
   const otherInterceptors =
     retryNum == 3
@@ -72,19 +72,19 @@ const CONTENT_TYPE = {
 type ParamsData = Record<string, string | number | null | undefined | boolean>
 export interface Options {
   method?:
-    | 'GET'
-    | 'HEAD'
-    | 'POST'
-    | 'PUT'
-    | 'DELETE'
-    | 'OPTIONS'
-    | 'PATCH'
-    | 'PROPFIND'
-    | 'COPY'
-    | 'MOVE'
-    | 'MKCOL'
-    | 'PROPPATCH'
-    | 'QUOTA'
+  | 'GET'
+  | 'HEAD'
+  | 'POST'
+  | 'PUT'
+  | 'DELETE'
+  | 'OPTIONS'
+  | 'PATCH'
+  | 'PROPFIND'
+  | 'COPY'
+  | 'MOVE'
+  | 'MKCOL'
+  | 'PROPPATCH'
+  | 'QUOTA'
   query?: ParamsData
   headers?: Record<string, string | string[]>
   timeout?: number
@@ -216,7 +216,7 @@ const buildRequestDispatcher = (options: Options) => {
       if (options.maxRedirect) {
         dispatcher = buildDispatcher(
           interceptors.redirect({ maxRedirections: options.maxRedirect }),
-          options.retryNum
+          options.retryNum,
         )
       } else {
         dispatcher = buildDispatcher(null, options.retryNum)
@@ -228,7 +228,7 @@ const buildRequestDispatcher = (options: Options) => {
 
 export const request = async <T = unknown>(
   url: string,
-  options: Options = {}
+  options: Options = {},
 ): Promise<Response<T>> => {
   const method = options.method?.toUpperCase() ?? 'GET'
   const timeout = options.timeout ?? defaultOptions.timeout
@@ -252,7 +252,7 @@ export const request = async <T = unknown>(
     body,
     signal: options.signal,
     dispatcher: buildRequestDispatcher(options),
-  }).then(async (response) => {
+  }).then(async(response) => {
     if (options.needBody) {
       return {
         headers: response.headers,

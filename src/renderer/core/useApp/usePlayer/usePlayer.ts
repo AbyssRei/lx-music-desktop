@@ -171,7 +171,7 @@ export default () => {
     window.key_event.off(HOTKEY_PLAYER.music_dislike.action, dislikeMusic)
     window.key_event.off(HOTKEY_PLAYER.seekbackward.action, handleSeekbackward)
     window.key_event.off(HOTKEY_PLAYER.seekforward.action, handleSeekforward)
-  window.key_event.off('key_space_down', handleSpaceToggle)
+    window.key_event.off('key_space_down', handleSpaceToggle)
 
 
     window.app_event.off('play', setPlayStatus)

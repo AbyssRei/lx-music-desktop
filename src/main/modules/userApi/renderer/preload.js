@@ -69,13 +69,14 @@ const verifyLyricInfo = (info) => {
 
 const handleRequest = (context, { requestKey, data }) => {
   // console.log(data)
-  if (!events.request)
+  if (!events.request) {
     return sendMessage(
       USER_API_RENDERER_EVENT_NAME.response,
       { requestKey },
       false,
-      'Request event is not defined'
+      'Request event is not defined',
     )
+  }
   try {
     events.request
       .call(context, { source: data.source, action: data.action, info: data.info })
@@ -85,8 +86,7 @@ const handleRequest = (context, { requestKey, data }) => {
         }
         switch (data.action) {
           case 'musicUrl':
-            if (typeof response != 'string' || response.length > 2048 || !/^https?:/.test(response))
-              throw new Error('failed')
+            if (typeof response != 'string' || response.length > 2048 || !/^https?:/.test(response)) { throw new Error('failed') }
             sendData.result = {
               source: data.source,
               action: data.action,
@@ -104,8 +104,7 @@ const handleRequest = (context, { requestKey, data }) => {
             }
             break
           case 'pic':
-            if (typeof response != 'string' || response.length > 2048 || !/^https?:/.test(response))
-              throw new Error('failed')
+            if (typeof response != 'string' || response.length > 2048 || !/^https?:/.test(response)) { throw new Error('failed') }
             sendData.result = {
               source: data.source,
               action: data.action,
@@ -144,7 +143,7 @@ const handleInit = (context, info) => {
       USER_API_RENDERER_EVENT_NAME.init,
       null,
       false,
-      'Missing required parameter init info'
+      'Missing required parameter init info',
     )
     // sendMessage(USER_API_RENDERER_EVENT_NAME.init, false, null, typeof info.message === 'string' ? info.message.substring(0, 100) : '')
     return
@@ -191,8 +190,7 @@ const handleShowUpdateAlert = (data, resolve, reject) => {
     data.updateUrl &&
     !/^https?:\/\/[^\s$.?#].[^\s]*$/.test(data.updateUrl) &&
     data.updateUrl.length > 1024
-  )
-    delete data.updateUrl
+  ) { delete data.updateUrl }
   if (data.log.length > 1024) data.log = data.log.substring(0, 1024) + '...'
   sendMessage(USER_API_RENDERER_EVENT_NAME.showUpdateAlert, {
     log: data.log,
@@ -256,7 +254,7 @@ const initEnv = (userApi) => {
                 raw: resp.raw,
                 body,
               },
-              body
+              body,
             )
           }
         } catch (err) {
@@ -271,8 +269,7 @@ const initEnv = (userApi) => {
     },
     send(eventName, data) {
       return new Promise((resolve, reject) => {
-        if (!eventNames.includes(eventName))
-          return reject(new Error('The event is not supported: ' + eventName))
+        if (!eventNames.includes(eventName)) { return reject(new Error('The event is not supported: ' + eventName)) }
         switch (eventName) {
           case EVENT_NAMES.inited:
             if (isInitedApi) return reject(new Error('Script is inited'))
@@ -281,8 +278,7 @@ const initEnv = (userApi) => {
             resolve()
             break
           case EVENT_NAMES.updateAlert:
-            if (isShowedUpdateAlert)
-              return reject(new Error('The update alert can only be called once.'))
+            if (isShowedUpdateAlert) { return reject(new Error('The update alert can only be called once.')) }
             isShowedUpdateAlert = true
             handleShowUpdateAlert(data, resolve, reject)
             break
@@ -292,8 +288,7 @@ const initEnv = (userApi) => {
       })
     },
     on(eventName, handler) {
-      if (!eventNames.includes(eventName))
-        return Promise.reject(new Error('The event is not supported: ' + eventName))
+      if (!eventNames.includes(eventName)) { return Promise.reject(new Error('The event is not supported: ' + eventName)) }
       switch (eventName) {
         case EVENT_NAMES.request:
           events.request = handler

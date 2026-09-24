@@ -1,10 +1,10 @@
-import {httpFetch} from '../../request'
-import {dateFormat2} from '../../index'
+import { httpFetch } from '../../request'
+import { dateFormat2 } from '../../index'
 
 export default {
   _requestObj: null as any,
   _requestObj2: null as any,
-  async getComment({songmid}: {songmid: string}, page: number = 1, limit: number = 20): Promise<any> {
+  async getComment({ songmid }: { songmid: string }, page: number = 1, limit: number = 20): Promise<any> {
     if (this._requestObj) this._requestObj.cancelHttp()
 
     const _requestObj = httpFetch(
@@ -13,9 +13,9 @@ export default {
         headers: {
           'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 9;)',
         },
-      }
+      },
     )
-    const {body, statusCode} = await _requestObj.promise
+    const { body, statusCode } = await _requestObj.promise
     if (statusCode != 200 || body.code != '200') throw new Error('获取评论失败')
     // console.log(body)
 
@@ -29,7 +29,7 @@ export default {
       maxPage: Math.ceil(total / limit) || 1,
     }
   },
-  async getHotComment({songmid}: {songmid: string}, page: number = 1, limit: number = 100): Promise<any> {
+  async getHotComment({ songmid }: { songmid: string }, page: number = 1, limit: number = 100): Promise<any> {
     if (this._requestObj2) this._requestObj2.cancelHttp()
 
     const _requestObj2 = httpFetch(
@@ -38,9 +38,9 @@ export default {
         headers: {
           'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 9;)',
         },
-      }
+      },
     )
-    const {body, statusCode} = await _requestObj2.promise
+    const { body, statusCode } = await _requestObj2.promise
     if (statusCode != 200 || body.code != '200') throw new Error('获取热门评论失败')
     // console.log(body)
 

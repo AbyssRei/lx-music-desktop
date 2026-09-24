@@ -12,14 +12,14 @@ export default () => {
     (index) => {
       const info = index == null ? windowSizeList[2] : windowSizeList[index]
       setWindowSize(info.width, info.height)
-    }
+    },
   )
   watch(
     () => appSetting['common.fontSize'],
     (fontSize) => {
       if (isFullscreen.value) return
       document.documentElement.style.fontSize = `${fontSize}px`
-    }
+    },
   )
 
   watch(
@@ -28,14 +28,14 @@ export default () => {
       if (!id) return
       setLanguage(id)
       window.setLang(id)
-    }
+    },
   )
 
   watch(
     () => appSetting['common.apiSource'],
     (apiSource) => {
       void setUserApi(apiSource)
-    }
+    },
   )
 
   watch(
@@ -45,14 +45,14 @@ export default () => {
     },
     {
       immediate: true,
-    }
+    },
   )
 
   watch(
     () => appSetting['sync.mode'],
     (mode) => {
       sync.mode = mode
-    }
+    },
   )
 
   watch(
@@ -89,7 +89,7 @@ export default () => {
           break
       }
       sync.enable = enable
-    }
+    },
   )
   watch(
     () => appSetting['sync.server.port'],
@@ -104,7 +104,7 @@ export default () => {
         })
       }
       sync.server.port = port
-    }
+    },
   )
   watch(
     () => appSetting['sync.client.host'],
@@ -119,25 +119,25 @@ export default () => {
         })
       }
       sync.client.host = host
-    }
+    },
   )
 
   watch(
     () => appSetting['network.proxy.enable'],
     (enable) => {
       proxy.enable = enable
-    }
+    },
   )
   watch(
     () => appSetting['network.proxy.host'],
     (host) => {
       proxy.host = host
-    }
+    },
   )
   watch(
     () => appSetting['network.proxy.port'],
     (port) => {
       proxy.port = port
-    }
+    },
   )
 }

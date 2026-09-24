@@ -8,12 +8,12 @@ export default {
   total: 0,
   page: 0,
   allPage: 1,
-  musicSearch(str: string, page: number, limit: number): Promise<any> {
+  async musicSearch(str: string, page: number, limit: number): Promise<any> {
     // 上游 #2849：搜索接口 platform 从 WebFilter 切换到 AndroidFilter
     const searchRequest = httpFetch(
       `http://songsearch.kugou.com/song_search_v2?platform=AndroidFilter&iscorrection=1&keyword=${encodeURIComponent(
-        str
-      )}&hifiquality=0&pagesize=${limit}&PrivilegeFilter=0&page=${page}`
+        str,
+      )}&hifiquality=0&pagesize=${limit}&PrivilegeFilter=0&page=${page}`,
     )
     return searchRequest.promise.then(({ body }: any) => body)
   },
@@ -72,11 +72,11 @@ export default {
       }
     })
   },
-  search(str: string, page: number = 1, limit?: number | null, retryNum: number = 0): Promise<any> {
+  async search(str: string, page: number = 1, limit?: number | null, retryNum: number = 0): Promise<any> {
     if (++retryNum > 3) return Promise.reject(new Error('try max num'))
     if (limit == null) limit = this.limit
 
-    return this.musicSearch(str, page, limit).then(async (result: any) => {
+    return this.musicSearch(str, page, limit).then(async(result: any) => {
       if (!result || result.error_code !== 0) return this.search(str, page, limit, retryNum)
 
       let list = await this.handleResult(result.data.lists)
@@ -85,7 +85,7 @@ export default {
 
       this.total = result.data.total
       this.page = page
-      this.allPage = Math.ceil(this.total / limit!)
+      this.allPage = Math.ceil(this.total / limit)
 
       return Promise.resolve({
         list,

@@ -4,7 +4,7 @@ import { formatPlayTime, sizeFormate } from '../../index'
 import { formatSingerName } from '../utils'
 
 export const filterMusicInfoItem = (item: any): any => {
-  const types: { type: string; size: string }[] = []
+  const types: Array<{ type: string, size: string }> = []
   const _types: Record<string, { size: string }> = {}
   if (item.file.size_128mp3 != 0) {
     let size = sizeFormate(item.file.size_128mp3)
@@ -88,7 +88,7 @@ export const filterMusicInfoItem = (item: any): any => {
  * @param {*} options
  * @param {*} retryNum
  */
-const createMusicuFetch = async (data: any, options?: any, retryNum: number = 0): Promise<any> => {
+const createMusicuFetch = async(data: any, options?: any, retryNum: number = 0): Promise<any> => {
   if (retryNum > 2) throw new Error('try max num')
 
   let result
@@ -114,8 +114,7 @@ const createMusicuFetch = async (data: any, options?: any, retryNum: number = 0)
     console.log(err)
     return createMusicuFetch(data, options, ++retryNum)
   }
-  if (result.statusCode !== 200 || result.body.code != 0)
-    return createMusicuFetch(data, options, ++retryNum)
+  if (result.statusCode !== 200 || result.body.code != 0) { return createMusicuFetch(data, options, ++retryNum) }
 
   return result.body
 }
@@ -125,7 +124,7 @@ export default {
    * 获取歌手信息
    * @param {*} id
    */
-  getInfo(id: string): Promise<any> {
+  async getInfo(id: string): Promise<any> {
     return createMusicuFetch({
       req_1: {
         module: 'music.musichallSinger.SingerInfoInter',
@@ -162,8 +161,7 @@ export default {
         },
       },
     }).then((body: any) => {
-      if (body.req_1.code != 0 || body.req_2 != 0 || body.req_3 != 0)
-        throw new Error('get singer info faild.')
+      if (body.req_1.code != 0 || body.req_2 != 0 || body.req_3 != 0) { throw new Error('get singer info faild.') }
 
       const info = body.req_1.data.singer_list[0]
       const music = body.req_3.data
@@ -190,7 +188,7 @@ export default {
    * @param {*} page
    * @param {*} limit
    */
-  getAlbumList(id: string, page: number = 1, limit: number = 10): Promise<any> {
+  async getAlbumList(id: string, page: number = 1, limit: number = 10): Promise<any> {
     if (page === 1) page = 0
     return createMusicuFetch({
       req: {

@@ -71,7 +71,7 @@ export default () => {
     window.app_event.off('musicToggled', setPlayInfo)
     window.app_event.off('lyricUpdated', setLyric)
     window.app_event.off('setPlaybackRate', handleApplyPlaybackRate)
-  window.app_event.off('setProgress', handleSetProgress)
-  window.app_event.off('progressDragging', handleProgressDragging)
+    window.app_event.off('setProgress', handleSetProgress)
+    window.app_event.off('progressDragging', handleProgressDragging)
   })
 }

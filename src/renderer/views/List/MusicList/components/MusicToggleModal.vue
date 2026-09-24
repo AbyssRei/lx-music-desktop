@@ -61,15 +61,12 @@
             <h2>
               <div :class="$style.nameLabel">
                 <span :class="$style.name">{{ toggleMusicInfo.name }}</span>
-                <span :class="$style.label"
-                  >{{ toggleMusicInfo.source }} {{ musicInfo.interval }}</span
-                >
+                <span :class="$style.label">{{ toggleMusicInfo.source }} {{ musicInfo.interval }}</span>
               </div>
               <div :class="$style.singer">
                 {{ toggleMusicInfo.singer }}
                 <span v-if="toggleMusicInfo.meta.albumName">
-                  / {{ toggleMusicInfo.meta.albumName }}</span
-                >
+                  / {{ toggleMusicInfo.meta.albumName }}</span>
               </div>
             </h2>
           </template>
@@ -78,8 +75,7 @@
           :disabled="!toggleMusicInfo || musicInfo.id == toggleMusicInfo.id"
           :class="$style.btn"
           @click="handleConfirm"
-          >{{ $t('music_toggle_confirm') }}</base-btn
-        >
+          >{{ $t('music_toggle_confirm') }}</base-btn>
       </div>
     </main>
   </material-modal>
@@ -161,8 +157,7 @@ export default {
               }
             })
             if (lists.length) this.source = lists[0].source
-            for (const s of lists)
-              this.lists[s.source] = s.list.map((s) => markRaw(toNewMusicInfo(s)))
+            for (const s of lists) { this.lists[s.source] = s.list.map((s) => markRaw(toNewMusicInfo(s))) }
           })
           .catch(() => {
             if (this.searchKey != searchKey) return

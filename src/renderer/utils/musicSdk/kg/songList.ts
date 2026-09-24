@@ -4,7 +4,7 @@ import infSign from '@renderer/utils/musicSdk/kg/vendors/infSign.min'
 import { signatureParams } from './util'
 import { filterData } from './quality_detail'
 
-const handleSignature = (id: any, page: number, limit: number): Promise<string> =>
+const handleSignature = async(id: any, page: number, limit: number): Promise<string> =>
   new Promise((resolve, reject) => {
     infSign(
       { appid: 1058, type: 0, module: 'playlist', page, pagesize: limit, specialid: id },
@@ -15,7 +15,7 @@ const handleSignature = (id: any, page: number, limit: number): Promise<string> 
         callback(i: any) {
           resolve(i.signature)
         },
-      }
+      },
     )
   })
 
@@ -124,16 +124,16 @@ export default {
     return result
   },
 
-  getSongList(sortId: any, tagId: any, page: number, tryNum: number = 0): Promise<any> {
+  async getSongList(sortId: any, tagId: any, page: number, tryNum: number = 0): Promise<any> {
     if (this._requestObj_list) this._requestObj_list.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     this._requestObj_list = httpFetch(this.getSongListUrl(sortId, tagId, page))
-    return this._requestObj_list.promise.then(({ body }: any) => {
+    return this._requestObj_list.promise.then(async({ body }: any) => {
       if (!body || body.status !== 1) return this.getSongList(sortId, tagId, page, ++tryNum)
       return this.filterList(body.special_db)
     })
   },
-  getSongListRecommend(tryNum: number = 0): Promise<any> {
+  async getSongListRecommend(tryNum: number = 0): Promise<any> {
     if (this._requestObj_listRecommend) this._requestObj_listRecommend.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     this._requestObj_listRecommend = httpFetch(
@@ -154,9 +154,9 @@ export default {
           return_min: 6,
           return_max: 15,
         },
-      }
+      },
     )
-    return this._requestObj_listRecommend.promise.then(({ body }: any) => {
+    return this._requestObj_listRecommend.promise.then(async({ body }: any) => {
       if (body.status !== 1) return this.getSongListRecommend(++tryNum)
       return this.filterList(body.data.special_list)
     })
@@ -192,14 +192,13 @@ export default {
         : result.body.errcode !== undefined
           ? result.body.errcode
           : result.body.err_code) !== 0
-    )
-      return this.createHttp(url, options, ++retryNum)
+    ) { return this.createHttp(url, options, ++retryNum) }
     if (result.body.data) return result.body.data
     if (Array.isArray(result.body.info)) return result.body
     return result.body.info
   },
 
-  createTask(hashs: any[]): Promise<any>[] {
+  createTask(hashs: any[]): Array<Promise<any>> {
     let data = {
       area_code: '1',
       show_privilege: 1,
@@ -221,7 +220,7 @@ export default {
       list = list.slice(100)
     }
     let url = 'http://gateway.kugou.com/v2/album_audio/audio'
-    return tasks.map((task: any) =>
+    return tasks.map(async(task: any) =>
       this.createHttp(url, {
         method: 'POST',
         body: task,
@@ -233,14 +232,14 @@ export default {
           'User-Agent': 'Android712-AndroidPhone-11451-376-0-FeeCacheUpdate-wifi',
           'x-router': 'kmr.service.kugou.com',
         },
-      }).then((data: any) => data.map((s: any) => s[0]))
+      }).then((data: any) => data.map((s: any) => s[0])),
     )
   },
   async getMusicInfos(list: any[]): Promise<any[]> {
     return await this.filterData(
       await Promise.all(
-        this.createTask(this.deDuplication(list).map((item: any) => ({ hash: item.hash })))
-      ).then(([...datas]: any[]) => datas.flat())
+        this.createTask(this.deDuplication(list).map((item: any) => ({ hash: item.hash }))),
+      ).then(([...datas]: any[]) => datas.flat()),
     )
   },
 
@@ -305,7 +304,7 @@ export default {
       source: 'kg',
       info: {
         name: info.name,
-        img: (info.img_size && info.img_size.replace('{size}', 240)) || info.img,
+        img: (info.img_size?.replace('{size}', 240)) || info.img,
         author: info.username,
       },
     }
@@ -319,7 +318,7 @@ export default {
           'User-Agent':
             'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
         },
-      }
+      },
     )
     if (!songInfo.list) {
       if (songInfo.global_collection_id) {
@@ -372,7 +371,7 @@ export default {
           Referer: 'https://m.kugou.com/',
         },
         body,
-      }
+      },
     )
     return result.list[0].global_collection_id
   },
@@ -380,7 +379,7 @@ export default {
   async getUserListDetailByLink({ info }: any, link: string): Promise<any> {
     let listInfo = info['0']
     let total = listInfo.count
-    let tasks: Promise<any>[] = []
+    let tasks: Array<Promise<any>> = []
     let page = 0
     while (total) {
       const limit = total > 90 ? 90 : total
@@ -395,8 +394,8 @@ export default {
                 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1',
               Referer: link,
             },
-          }
-        ).then((data: any) => data.list.info)
+          },
+        ).then((data: any) => data.list.info),
       )
     }
     let result = await Promise.all(tasks).then(([...datas]: any[]) => datas.flat())
@@ -409,13 +408,13 @@ export default {
       source: 'kg',
       info: {
         name: listInfo.name,
-        img: listInfo.pic && listInfo.pic.replace('{size}', 240),
+        img: listInfo.pic?.replace('{size}', 240),
         author: listInfo.list_create_username,
       },
     }
   },
-  createGetListDetail2Task(id: string, total: number): Promise<any[]> {
-    let tasks: Promise<any>[] = []
+  async createGetListDetail2Task(id: string, total: number): Promise<any[]> {
+    let tasks: Array<Promise<any>> = []
     let page = 0
     while (total) {
       const limit = total > 300 ? 300 : total
@@ -433,7 +432,7 @@ export default {
         this.createHttp(
           `https://mobiles.kugou.com/api/v5/special/song_v2?${params}&signature=${signatureParams(
             params,
-            'web'
+            'web',
           )}`,
           {
             headers: {
@@ -444,8 +443,8 @@ export default {
               dfid: '-',
               clienttime: '1586163263991',
             },
-          }
-        ).then((data: any) => data.info)
+          },
+        ).then((data: any) => data.info),
       )
     }
     return Promise.all(tasks).then(([...datas]: any[]) => datas.flat())
@@ -532,7 +531,7 @@ export default {
     let info = await this.createHttp(
       `https://mobiles.kugou.com/api/v5/special/info_v2?${params}&signature=${signatureParams(
         params,
-        'web'
+        'web',
       )}`,
       {
         headers: {
@@ -543,7 +542,7 @@ export default {
           dfid: '-',
           clienttime: '1586163242519',
         },
-      }
+      },
     )
     const songInfo = await this.createGetListDetail2Task(id, info.songcount)
     let list = await this.getMusicInfos(songInfo)
@@ -555,7 +554,7 @@ export default {
       source: 'kg',
       info: {
         name: info.specialname,
-        img: info.imgurl && info.imgurl.replace('{size}', 240),
+        img: info.imgurl?.replace('{size}', 240),
         desc: info.intro,
         author: info.nickname,
         play_count: formatPlayCount(info.playcount),
@@ -607,7 +606,7 @@ export default {
       source: 'kg',
       info: {
         name: listInfo.specialname,
-        img: listInfo.imgurl && listInfo.imgurl.replace('{size}', 240),
+        img: listInfo.imgurl?.replace('{size}', 240),
         author: listInfo.nickname,
       },
     }
@@ -626,7 +625,7 @@ export default {
       source: 'kg',
       info: {
         name: listInfo.specialname,
-        img: listInfo.imgurl && listInfo.imgurl.replace('{size}', 240),
+        img: listInfo.imgurl?.replace('{size}', 240),
         author: listInfo.nickname,
       },
     }
@@ -643,7 +642,7 @@ export default {
             'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
           dfid: '-',
         },
-      }
+      },
     )
 
     let result = await this.getMusicInfos(info.info)
@@ -679,11 +678,12 @@ export default {
         } else {
           link += `&pagesize=${this.listDetailLimit}&page=${page}`
         }
-      } else if (!link.includes('song.html'))
+      } else if (!link.includes('song.html')) {
         return this.getUserListDetail3(
           link.replace(/.+\/(\w+).html(?:\?.*|&.*$|#.*$|$)/, '$1'),
-          page
+          page,
         )
+      }
     }
     if (link.includes('global_collection_id')) {
       return this.getUserListDetail2(
@@ -735,11 +735,12 @@ export default {
             link += `&pagesize=${this.listDetailLimit}&page=${page}`
           }
           return this.getUserListDetail(link, page, ++retryNum)
-        } else
+        } else {
           return this.getUserListDetail3(
             location.replace(/.+\/(\w+).html(?:\?.*|&.*$|#.*$|$)/, '$1'),
-            page
+            page,
           )
+        }
       }
       if (location.includes('global_collection_id')) {
         return this.getUserListDetail2(
@@ -782,11 +783,11 @@ export default {
   },
 
   // 获取列表信息
-  getListInfo(tagId: any, tryNum: number = 0): Promise<any> {
+  async getListInfo(tagId: any, tryNum: number = 0): Promise<any> {
     if (this._requestObj_listInfo) this._requestObj_listInfo.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     this._requestObj_listInfo = httpFetch(this.getInfoUrl(tagId))
-    return this._requestObj_listInfo.promise.then(({ body }: any) => {
+    return this._requestObj_listInfo.promise.then(async({ body }: any) => {
       if (body.status !== 1) return this.getListInfo(tagId, ++tryNum)
       return {
         limit: body.data.params.pagesize,
@@ -798,19 +799,18 @@ export default {
   },
 
   // 获取列表数据
-  getList(sortId: any, tagId: any, page: number): Promise<any> {
-    let tasks: Promise<any>[] = [this.getSongList(sortId, tagId, page)]
+  async getList(sortId: any, tagId: any, page: number): Promise<any> {
+    let tasks: Array<Promise<any>> = [this.getSongList(sortId, tagId, page)]
     tasks.push(
       this.currentTagInfo.id === tagId
         ? Promise.resolve(this.currentTagInfo.info)
         : this.getListInfo(tagId).then((info: any) => {
-            this.currentTagInfo.id = tagId
-            this.currentTagInfo.info = Object.assign({}, info)
-            return info
-          })
+          this.currentTagInfo.id = tagId
+          this.currentTagInfo.info = Object.assign({}, info)
+          return info
+        }),
     )
-    if (!tagId && page === 1 && sortId === this.sortList[0].id)
-      tasks.push(this.getSongListRecommend())
+    if (!tagId && page === 1 && sortId === this.sortList[0].id) { tasks.push(this.getSongListRecommend()) }
     return Promise.all(tasks).then(([list, info, recommendList]: any[]) => {
       if (recommendList) list.unshift(...recommendList)
       return {
@@ -821,11 +821,11 @@ export default {
   },
 
   // 获取标签
-  getTags(tryNum: number = 0): Promise<any> {
+  async getTags(tryNum: number = 0): Promise<any> {
     if (this._requestObj_tags) this._requestObj_tags.cancelHttp()
     if (tryNum > 2) return Promise.reject(new Error('try max num'))
     this._requestObj_tags = httpFetch(this.getInfoUrl())
-    return this._requestObj_tags.promise.then(({ body }: any) => {
+    return this._requestObj_tags.promise.then(async({ body }: any) => {
       if (body.status !== 1) return this.getTags(++tryNum)
       return {
         hotTag: this.filterInfoHotTag(body.data.hotTag),
@@ -843,11 +843,11 @@ export default {
     return `https://www.kugou.com/yy/special/single/${id}.html`
   },
 
-  search(text: string, page: number, limit: number = 20): Promise<any> {
+  async search(text: string, page: number, limit: number = 20): Promise<any> {
     return httpFetch(
       `http://msearchretry.kugou.com/api/v3/search/special?keyword=${encodeURIComponent(
-        text
-      )}&page=${page}&pagesize=${limit}&showtype=10&filter=0&version=7910&sver=2`
+        text,
+      )}&page=${page}&pagesize=${limit}&showtype=10&filter=0&version=7910&sver=2`,
     ).promise.then(({ body }: any) => {
       if (body.errcode != 0) throw new Error('filed')
       return {

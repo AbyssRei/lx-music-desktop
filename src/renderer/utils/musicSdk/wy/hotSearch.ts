@@ -2,7 +2,7 @@ import { eapiRequest } from './utils/index'
 
 export default {
   _requestObj: null as any,
-  async getList(retryNum: number = 0): Promise<{ source: string; list: string[] }> {
+  async getList(retryNum: number = 0): Promise<{ source: string, list: string[] }> {
     if (this._requestObj) this._requestObj.cancelHttp()
     if (retryNum > 2) return Promise.reject(new Error('try max num'))
 

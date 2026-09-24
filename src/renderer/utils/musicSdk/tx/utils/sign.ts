@@ -27,7 +27,7 @@ export function zzcSign(text: string): string {
   const part1 = pickHashByIdx(hash, PART_1_INDEXES)
   const part2 = pickHashByIdx(hash, PART_2_INDEXES)
   const part3 = SCRAMBLE_VALUES.map(
-    (value, i) => value ^ parseInt(hash.slice(i * 2, i * 2 + 2), 16)
+    (value, i) => value ^ parseInt(hash.slice(i * 2, i * 2 + 2), 16),
   )
   const b64Part = base64Encode(part3).replace(/[\\/+=]/g, '')
   return `zzc${part1}${b64Part}${part2}`.toLowerCase()

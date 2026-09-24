@@ -3,7 +3,7 @@ import { createHttpFetch } from './utils'
 export default {
   requestObj: null as any,
   cancelTipSearch() {
-    if (this.requestObj && this.requestObj.cancelHttp) this.requestObj.cancelHttp()
+    if (this.requestObj?.cancelHttp) this.requestObj.cancelHttp()
   },
   tipSearchBySong(str: string) {
     this.cancelTipSearch()
@@ -13,7 +13,7 @@ export default {
         headers: {
           referer: 'https://music.migu.cn/v3',
         },
-      }
+      },
     )
     return this.requestObj.then((body: any) => {
       return body.songs

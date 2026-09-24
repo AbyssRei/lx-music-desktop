@@ -81,11 +81,11 @@ declare namespace LX {
     info: HotKey
   }
   type HotKeyState = Map<
-    string,
-    {
-      status: boolean
-      info: HotKey
-    }
+  string,
+  {
+    status: boolean
+    info: HotKey
+  }
   >
   interface HotKeyActionWrap<T, D> {
     action: T

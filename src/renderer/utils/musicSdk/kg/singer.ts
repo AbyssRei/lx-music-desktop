@@ -6,7 +6,7 @@ export default {
    * 获取歌手信息
    * @param {*} id
    */
-  getInfo(id: any): Promise<any> {
+  async getInfo(id: any): Promise<any> {
     if (id == 0) throw new Error('歌手不存在') // kg源某些歌曲在歌手没被kg收录时返回的歌手id为0
     return createHttpFetch(`http://mobiles.kugou.com/api/v5/singer/info?singerid=${id}`).then(
       (body: any) => {
@@ -26,7 +26,7 @@ export default {
             album: body.albumcount,
           },
         }
-      }
+      },
     )
   },
   /**
@@ -35,10 +35,10 @@ export default {
    * @param {*} page
    * @param {*} limit
    */
-  getAlbumList(id: any, page: number = 1, limit: number = 10): Promise<any> {
+  async getAlbumList(id: any, page: number = 1, limit: number = 10): Promise<any> {
     if (id == 0) throw new Error('歌手不存在')
     return createHttpFetch(
-      `http://mobiles.kugou.com/api/v5/singer/album?singerid=${id}&page=${page}&pagesize=${limit}`
+      `http://mobiles.kugou.com/api/v5/singer/album?singerid=${id}&page=${page}&pagesize=${limit}`,
     ).then((body: any) => {
       if (!body.info) throw new Error('get singer album list faild.')
 
@@ -61,7 +61,7 @@ export default {
   async getSongList(id: any, page: number = 1, limit: number = 100): Promise<any> {
     if (id == 0) throw new Error('歌手不存在')
     const body = await createHttpFetch(
-      `http://mobiles.kugou.com/api/v5/singer/song?singerid=${id}&page=${page}&pagesize=${limit}`
+      `http://mobiles.kugou.com/api/v5/singer/song?singerid=${id}&page=${page}&pagesize=${limit}`,
     )
     if (!body.info) throw new Error('get singer song list faild.')
 

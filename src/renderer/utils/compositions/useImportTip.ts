@@ -30,7 +30,7 @@ export default () => {
         break
     }
 
-    dialog({
+    void dialog({
       message,
       confirmButtonText: t('ok'),
     })

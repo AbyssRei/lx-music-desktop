@@ -43,7 +43,7 @@ export default {
     const total = body.count ?? 0
     return { source: 'kg', comments: this.filterComment(body.list || []), total, page, limit, maxPage: Math.ceil(total / limit) || 1 }
   },
-  async getReplyComment({ songmid, audioId }: { songmid: string; audioId: string }, replyId: any, page: number = 1, limit: number = 100): Promise<any> {
+  async getReplyComment({ songmid, audioId }: { songmid: string, audioId: string }, replyId: any, page: number = 1, limit: number = 100): Promise<any> {
     if (this._requestObj2) this._requestObj2.cancelHttp()
 
     songmid = songmid.length == 32 // 修复歌曲ID存储变更导致图片获取失败的问题
@@ -71,7 +71,7 @@ export default {
       let data = {
         id: item.id,
         text: decodeName(
-          (item.atlist ? this.replaceAt(item.content, item.atlist) : item.content) || ''
+          (item.atlist ? this.replaceAt(item.content, item.atlist) : item.content) || '',
         ),
         images: item.images ? item.images.map((i: any) => i.url) : [],
         location: item.location,

@@ -27,9 +27,9 @@ export const getBatchMusicQualityInfo = (songList: any[]) => {
     },
   })
 
-  const qualityInfoMap: Record<string, { types: { type: string; size: string }[]; _types: Record<string, { size: string }> }> = {}
+  const qualityInfoMap: Record<string, { types: Array<{ type: string, size: string }>, _types: Record<string, { size: string }> }> = {}
 
-  requestObj.promise = requestObj.promise.then(({ statusCode, body }: any) => {
+  requestObj.promise = requestObj.promise.then(async({ statusCode, body }: any) => {
     if (statusCode != 200 || body.code != 0) return Promise.reject(new Error('获取音质信息失败'))
 
     // Process each track from the response
@@ -37,7 +37,7 @@ export const getBatchMusicQualityInfo = (songList: any[]) => {
       const file: any = track.file
       const songId: string = track.id
 
-      const types: { type: string; size: string }[] = []
+      const types: Array<{ type: string, size: string }> = []
       const _types: Record<string, { size: string }> = {}
 
       if (file.size_128mp3 != 0) {

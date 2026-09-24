@@ -1,7 +1,7 @@
 import { httpFetch } from '../../request'
 
 export default {
-  getPic(songInfo: any): Promise<string> {
+  async getPic(songInfo: any): Promise<string> {
     const requestObj = httpFetch('http://media.store.kugou.com/v1/get_res_privilege', {
       method: 'POST',
       headers: {

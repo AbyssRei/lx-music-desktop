@@ -43,7 +43,7 @@ export default ({ isPlay, lyric, playProgress, isShowLyricProgressSetting, offse
   let cancelScrollFn: (() => void) | null
   let dom_lines: any
   let isSetedLines = false
-  const point: { x: number; y: number } = {
+  const point: { x: number, y: number } = {
     x: 0,
     y: 0,
   }
@@ -112,7 +112,7 @@ export default ({ isPlay, lyric, playProgress, isShowLyricProgressSetting, offse
     cancelScrollFn = scrollTo(
       dom_lyric.value,
       dom_p ? dom_p.offsetTop - dom_lyric.value.clientHeight * 0.38 : 0,
-      duration
+      duration,
     )
   }
   const clearLyricScrollTimeout = (): void => {
@@ -193,7 +193,7 @@ export default ({ isPlay, lyric, playProgress, isShowLyricProgressSetting, offse
     }
     dom_lyric_text.value!.textContent = ''
     dom_lyric_text.value!.appendChild(dom_line_content)
-    nextTick(() => {
+    void nextTick(() => {
       dom_lines = dom_lyric.value!.querySelectorAll('.line-content')
       handleScrollLrc()
     })
@@ -213,7 +213,7 @@ export default ({ isPlay, lyric, playProgress, isShowLyricProgressSetting, offse
             if (lyric.lines !== lines) return
             setLyric(lines)
           },
-          50
+          50,
         )
       }
     } else {
@@ -229,7 +229,7 @@ export default ({ isPlay, lyric, playProgress, isShowLyricProgressSetting, offse
       return
     }
     isSetedLines &&= false
-    if (oldLine == null || line - oldLine != 1) return handleScrollLrc()
+    if (oldLine == null || line - oldLine != 1) { handleScrollLrc(); return }
 
     if (appSetting['playDetail.isDelayScroll']) {
       delayScrollTimeout = setTimeout(() => {

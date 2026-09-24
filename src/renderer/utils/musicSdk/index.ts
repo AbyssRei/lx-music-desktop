@@ -69,13 +69,13 @@ const sources: Record<string, any> & { sources: SourceEntry[] } = {
   mg,
   git,
 }
-const musicSdk: Record<string, any> & { sources: SourceEntry[]; init: () => Promise<any[]>; supportQuality: typeof supportQuality; searchMusic: (params: SearchMusicParams) => Promise<any[]>; findMusic: (params: FindMusicParams) => Promise<any[]> } = {
+const musicSdk: Record<string, any> & { sources: SourceEntry[], init: () => Promise<any[]>, supportQuality: typeof supportQuality, searchMusic: (params: SearchMusicParams) => Promise<any[]>, findMusic: (params: FindMusicParams) => Promise<any[]> } = {
   ...sources,
-  init(): Promise<any[]> {
-    const tasks: Promise<any>[] = []
+  async init(): Promise<any[]> {
+    const tasks: Array<Promise<any>> = []
     for (let source of sources.sources) {
       let sm: SourceModule | undefined = sources[source.id]
-      sm && sm.init && tasks.push(sm.init())
+      sm?.init && tasks.push(sm.init())
     }
     return Promise.all(tasks)
   },
@@ -84,15 +84,14 @@ const musicSdk: Record<string, any> & { sources: SourceEntry[]; init: () => Prom
   async searchMusic({ name, singer, source: s, limit = 25 }: SearchMusicParams): Promise<any[]> {
     const trimStr = (str: any): any => (typeof str == 'string' ? str.trim() : str)
     const musicName = trimStr(name)
-    const tasks: Promise<any>[] = []
+    const tasks: Array<Promise<any>> = []
     const excludeSource = ['xm']
     for (const source of sources.sources) {
-      if (!sources[source.id].musicSearch || source.id == s || excludeSource.includes(source.id))
-        continue
+      if (!sources[source.id].musicSearch || source.id == s || excludeSource.includes(source.id)) { continue }
       tasks.push(
         sources[source.id].musicSearch
-          .search(`${musicName} ${singer || ''}`.trim(), 1, limit)
-          .catch((_: any) => null)
+          .search(`${musicName} ${singer ?? ''}`.trim(), 1, limit)
+          .catch((_: any) => null),
       )
     }
     return (await Promise.all(tasks)).filter((s: any) => s)
@@ -105,9 +104,9 @@ const musicSdk: Record<string, any> & { sources: SourceEntry[]; init: () => Prom
     const sortSingle = (singer: string): string =>
       singersRxp.test(singer)
         ? singer
-            .split(singersRxp)
-            .sort((a: string, b: string) => a.localeCompare(b))
-            .join('、')
+          .split(singersRxp)
+          .sort((a: string, b: string) => a.localeCompare(b))
+          .join('、')
         : singer || ''
     const sortMusic = (arr: any[], callback: (item: any) => boolean): any[] => {
       const tempResult: any[] = []
@@ -142,7 +141,7 @@ const musicSdk: Record<string, any> & { sources: SourceEntry[]; init: () => Prom
         ? str.replace(/\s|'|\.|,|，|&|"|、|\(|\)|（|）|`|~|-|<|>|\||\/|\]|\[|!|！/g, '')
         : String(str || '')
     const fMusicName = filterStr(name).toLowerCase()
-    const fSinger = filterStr(sortSingle(singer || '')).toLowerCase()
+    const fSinger = filterStr(sortSingle(singer ?? '')).toLowerCase()
     const fAlbumName = filterStr(albumName).toLowerCase()
     const fInterval = getIntv(interval)
     const isEqualsInterval = (intv: number): boolean => Math.abs((fInterval || intv) - (intv || fInterval)) <= 5
@@ -183,8 +182,7 @@ const musicSdk: Record<string, any> & { sources: SourceEntry[]; init: () => Prom
             isEqualsAlbum(item.fAlbumName) &&
             isIncludesSinger(item.fSinger) &&
             isIncludesName(item.fMusicName)
-          )
-            return item
+          ) { return item }
         }
         return null
       })
@@ -195,8 +193,8 @@ const musicSdk: Record<string, any> & { sources: SourceEntry[]; init: () => Prom
         ...sortMusic(
           result,
           (item: any) =>
-            item.fSinger == fSinger && item.fMusicName == fMusicName && item.interval == interval
-        )
+            item.fSinger == fSinger && item.fMusicName == fMusicName && item.interval == interval,
+        ),
       )
       newResult.push(
         ...sortMusic(
@@ -204,17 +202,17 @@ const musicSdk: Record<string, any> & { sources: SourceEntry[]; init: () => Prom
           (item: any) =>
             item.fMusicName == fMusicName &&
             item.fSinger == fSinger &&
-            item.fAlbumName == fAlbumName
-        )
+            item.fAlbumName == fAlbumName,
+        ),
       )
       newResult.push(
-        ...sortMusic(result, (item: any) => item.fSinger == fSinger && item.fMusicName == fMusicName)
+        ...sortMusic(result, (item: any) => item.fSinger == fSinger && item.fMusicName == fMusicName),
       )
       newResult.push(
-        ...sortMusic(result, (item: any) => item.fMusicName == fMusicName && item.interval == interval)
+        ...sortMusic(result, (item: any) => item.fMusicName == fMusicName && item.interval == interval),
       )
       newResult.push(
-        ...sortMusic(result, (item: any) => item.fSinger == fSinger && item.interval == interval)
+        ...sortMusic(result, (item: any) => item.fSinger == fSinger && item.interval == interval),
       )
       newResult.push(...sortMusic(result, (item: any) => item.interval == interval))
       newResult.push(...sortMusic(result, (item: any) => item.fMusicName == fMusicName))

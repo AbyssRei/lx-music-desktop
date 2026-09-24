@@ -1,13 +1,13 @@
-import {httpFetch} from '../../request'
-import {lrcTools} from './util'
-import {decodeName} from '../../index'
-import {decodeLyric} from './decodeLyric'
+import { httpFetch } from '../../request'
+import { lrcTools } from './util'
+import { decodeName } from '../../index'
+import { decodeLyric } from './decodeLyric'
 
 const timeExp = /^\[([\d:.]*)]/g
 const existTimeExp = /\[\d{1,2}:.*\d{1,4}]/
 const lyricxTag = /^<-?\d+,-?\d+>/
 export default {
-  sortLrcArr(arr: any[]): {lrc: any[]; lrcT: any[]} {
+  sortLrcArr(arr: any[]): { lrc: any[], lrcT: any[] } {
     const lrcSet = new Set<string>()
     let lrc: any[] = []
     let lrcT: any[] = []
@@ -66,7 +66,7 @@ export default {
   },
   getLyric(musicInfo: any, isGetLyricx: boolean = true): any {
     const requestObj = httpFetch(`http://mlyric.kuwo.cn/mobi.s?f=web&type=lyric&lrcx=${isGetLyricx ? 1 : 0}&rid=${musicInfo.songmid}&encode=utf8`)
-    requestObj.promise = requestObj.promise.then(async ({statusCode, body, raw}: {statusCode: number; body: any; raw: Buffer}) => {
+    requestObj.promise = requestObj.promise.then(async({ statusCode, body, raw }: { statusCode: number, body: any, raw: Buffer }) => {
       if (statusCode !== 200) return Promise.reject(new Error(JSON.stringify(body)))
       const lrcText = await decodeLyric(raw, isGetLyricx)
       let lrcInfo

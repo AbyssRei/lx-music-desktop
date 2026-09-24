@@ -5,9 +5,9 @@ import { formatSingerName } from '../utils'
 export default {
   requestObj: null as any,
   cancelTipSearch(): void {
-    if (this.requestObj && this.requestObj.cancelHttp) this.requestObj.cancelHttp()
+    if (this.requestObj?.cancelHttp) this.requestObj.cancelHttp()
   },
-  tipSearchBySong(str: string): Promise<any[]> {
+  async tipSearchBySong(str: string): Promise<any[]> {
     this.cancelTipSearch()
     this.requestObj = httpFetch('https://music.163.com/weapi/search/suggest/web', {
       method: 'POST',
@@ -19,7 +19,7 @@ export default {
         s: str,
       }),
     })
-    return this.requestObj.promise.then(({ statusCode, body }: { statusCode: number; body: any }) => {
+    return this.requestObj.promise.then(({ statusCode, body }: { statusCode: number, body: any }) => {
       if (statusCode != 200 || body.code != 200) return Promise.reject(new Error('请求失败'))
       return body.result.songs
     })

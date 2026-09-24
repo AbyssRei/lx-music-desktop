@@ -4,7 +4,7 @@ export default {
   /**
    * 获取歌词
    */
-  async getLyric(songInfo: any): Promise<{ lyric: string; tlyric: string; lxlyric: string }> {
+  async getLyric(songInfo: any): Promise<{ lyric: string, tlyric: string, lxlyric: string }> {
     // 从搜索结果中恢复原始数据
     let gitcodeData = songInfo._gitcodeData
 

@@ -1,4 +1,4 @@
-import {httpFetch} from '../../request'
+import { httpFetch } from '../../request'
 
 export default {
   _requestObj: null as any,
@@ -12,12 +12,12 @@ export default {
         headers: {
           'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 9;)',
         },
-      }
+      },
     )
-    const {body, statusCode} = await _requestObj.promise
+    const { body, statusCode } = await _requestObj.promise
     if (statusCode != 200 || body.status !== 'ok') throw new Error('获取热搜词失败')
     // console.log(body, statusCode)
-    return {source: 'kw', list: this.filterList(body.tagvalue)}
+    return { source: 'kw', list: this.filterList(body.tagvalue) }
   },
   filterList(rawList: any[]): string[] {
     return rawList.map((item: any) => item.key)

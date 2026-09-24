@@ -1,6 +1,6 @@
 import { httpFetch } from '../../request'
 import getMusicInfo from './musicInfo'
-import {handleDecode} from "@renderer/utils/musicSdk/tx/decodeLyric";
+import { handleDecode } from '@renderer/utils/musicSdk/tx/decodeLyric'
 
 const songIdMap = new Map<string, any>()
 const promises = new Map<string, Promise<any>>()
@@ -25,7 +25,7 @@ const parseTools = {
     let s = parseInt(timeMs as any).toString().padStart(2, '0')
     return `[${m}:${s}.${ms}]`
   },
-  parseLyric(lrc: string): { lyric: string; lxlyric: string } {
+  parseLyric(lrc: string): { lyric: string, lxlyric: string } {
     lrc = lrc.trim()
     lrc = lrc.replace(/\r/g, '')
     if (!lrc) return { lyric: '', lxlyric: '' }
@@ -157,7 +157,7 @@ const parseTools = {
     })
     return newLrc.join('\n')
   },
-  parse(lrc: string, tlrc: string, rlrc: string): { lyric: string; tlyric: string; rlyric: string; lxlyric: string } {
+  parse(lrc: string, tlrc: string, rlrc: string): { lyric: string, tlyric: string, rlyric: string, lxlyric: string } {
     const info = {
       lyric: '',
       tlyric: '',
@@ -179,7 +179,7 @@ const parseTools = {
 
 export default {
   successCode: 0,
-  async getSongId({ songId, songmid }: { songId?: any; songmid?: string }): Promise<any> {
+  async getSongId({ songId, songmid }: { songId?: any, songmid?: string }): Promise<any> {
     if (songId) return songId
     if (songIdMap.has(songmid!)) return songIdMap.get(songmid!)
     if (promises.has(songmid!)) return (await promises.get(songmid!)).songId
@@ -190,11 +190,11 @@ export default {
     promises.delete(songmid!)
     return info.songId
   },
-  async parseLyric(lrc: string, tlrc: string, rlrc: string): Promise<{ lyric: string; tlyric: string; rlyric: string; lxlyric: string }> {
+  async parseLyric(lrc: string, tlrc: string, rlrc: string): Promise<{ lyric: string, tlyric: string, rlyric: string, lxlyric: string }> {
     const { lyric, tlyric, rlyric } = await handleDecode(lrc, tlrc, rlrc)
     return parseTools.parse(lyric, tlyric, rlyric)
   },
-  getLyric(mInfo: any, retryNum: number = 0): { cancelHttp: () => void; promise: Promise<any> } {
+  getLyric(mInfo: any, retryNum: number = 0): { cancelHttp: () => void, promise: Promise<any> } {
     if (retryNum > 3) return { cancelHttp() {}, promise: Promise.reject(new Error('Get lyric failed')) }
 
     return {
@@ -236,9 +236,8 @@ export default {
             },
           },
         })
-        return requestObj.promise.then(({ body }: any) => {
-          if (body.code !== this.successCode || body.req.code !== this.successCode)
-            return this.getLyric(songId, ++retryNum)
+        return requestObj.promise.then(async({ body }: any) => {
+          if (body.code !== this.successCode || body.req.code !== this.successCode) { return this.getLyric(songId, ++retryNum) }
           const data = body.req.data
           return this.parseLyric(data.lyric, data.trans, data.roma)
         })

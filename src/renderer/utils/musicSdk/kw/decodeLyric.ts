@@ -1,6 +1,6 @@
-import {inflate} from 'zlib'
+import { inflate } from 'zlib'
 
-const handleInflate = async (data: Buffer) => {
+const handleInflate = async(data: Buffer) => {
   return new Promise((resolve: (result: Buffer) => void, reject) => {
     inflate(data, (err, result) => {
       if (err) {
@@ -15,7 +15,7 @@ const handleInflate = async (data: Buffer) => {
 const buf_key = Buffer.from('yeelion')
 const buf_key_len = buf_key.length
 
-export const decodeLyric = async (rawData: Buffer | string, isGetLyricx: boolean): Promise<string> => {
+export const decodeLyric = async(rawData: Buffer | string, isGetLyricx: boolean): Promise<string> => {
   const buf = Buffer.isBuffer(rawData) ? rawData : Buffer.from(rawData)
   if (buf.toString('utf8', 0, 10).toLowerCase() !== 'tp=content') return ''
   const lrcData = await handleInflate(buf.subarray(buf.indexOf('\r\n\r\n') + 4))

@@ -79,7 +79,7 @@ export const parseLyric = (lrc: string): LX.Music.LyricInfo => {
   return { lyric, ...parsedInfo }
 }
 
-export const getMusicFileLyric = async (filePath: string): Promise<LX.Music.LyricInfo | null> => {
+export const getMusicFileLyric = async(filePath: string): Promise<LX.Music.LyricInfo | null> => {
   const lyric = await getLocalMusicFileLyric(filePath)
   if (!lyric) return null
   return parseLyric(lyric.lyric)

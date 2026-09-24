@@ -20,7 +20,7 @@ const aesEncrypt = (buffer: Buffer, mode: string, key: Buffer | string, iv: Buff
   return Buffer.concat([cipher.update(buffer), cipher.final()])
 }
 
-const aesDecrypt = function (cipherBuffer: Buffer, mode: string, key: Buffer | string, iv: Buffer | string): Buffer {
+const aesDecrypt = function(cipherBuffer: Buffer, mode: string, key: Buffer | string, iv: Buffer | string): Buffer {
   let decipher = createDecipheriv(mode as any, key, iv)
   return Buffer.concat([decipher.update(cipherBuffer), decipher.final()])
 }
@@ -30,7 +30,7 @@ const rsaEncrypt = (buffer: Buffer, key: string): Buffer => {
   return publicEncrypt({ key, padding: constants.RSA_NO_PADDING }, buffer)
 }
 
-export const weapi = (object: any): { params: string; encSecKey: string } => {
+export const weapi = (object: any): { params: string, encSecKey: string } => {
   const text = JSON.stringify(object)
   const secretKey = randomBytes(16).map((n) => base62.charAt(n % 62).charCodeAt(0))
   return {
@@ -38,7 +38,7 @@ export const weapi = (object: any): { params: string; encSecKey: string } => {
       Buffer.from(aesEncrypt(Buffer.from(text), 'aes-128-cbc', presetKey, iv).toString('base64')),
       'aes-128-cbc',
       secretKey as any,
-      iv
+      iv,
     ).toString('base64'),
     encSecKey: rsaEncrypt(Buffer.from(secretKey.reverse()) as any, publicKey).toString('hex'),
   }

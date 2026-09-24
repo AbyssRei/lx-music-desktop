@@ -19,7 +19,7 @@ export default (props, list) => {
     })
   }
 
-  const toggleSource = async (toggleMusicInfo) => {
+  const toggleSource = async(toggleMusicInfo) => {
     const oldId = musicInfo.value.id
     let oldIdx = list.value.findIndex((m) => m.id == oldId)
     if (oldIdx < 0) {
@@ -37,8 +37,7 @@ export default (props, list) => {
           cancelButtonText: t('cancel_button_text'),
           confirmButtonText: t('confirm_button_text'),
         }))
-      )
-        return
+      ) { return }
       removeIds.push(id)
     }
     isShowMusicToggleModal.value = false

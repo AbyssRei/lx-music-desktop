@@ -1,7 +1,7 @@
 import { createHttpFetch } from './util'
 import { filterData } from './quality_detail'
 
-const createGetMusicInfosTask = (hashs: any[]): Promise<any>[] => {
+const createGetMusicInfosTask = (hashs: any[]): Array<Promise<any>> => {
   let data = {
     area_code: '1',
     show_privilege: 1,
@@ -23,7 +23,7 @@ const createGetMusicInfosTask = (hashs: any[]): Promise<any>[] => {
     list = list.slice(100)
   }
   let url = 'http://gateway.kugou.com/v3/album_audio/audio'
-  return tasks.map((task: any) =>
+  return tasks.map(async(task: any) =>
     createHttpFetch(url, {
       method: 'POST',
       body: task,
@@ -35,28 +35,28 @@ const createGetMusicInfosTask = (hashs: any[]): Promise<any>[] => {
         'User-Agent': 'Android712-AndroidPhone-11451-376-0-FeeCacheUpdate-wifi',
         'x-router': 'kmr.service.kugou.com',
       },
-    }).then((data: any[]) => data.map((s: any[]) => s[0]))
+    }).then((data: any[]) => data.map((s: any[]) => s[0])),
   )
 }
 
-export const filterMusicInfoList = async (rawList: any[]): Promise<any[]> => {
+export const filterMusicInfoList = async(rawList: any[]): Promise<any[]> => {
   return await filterData(rawList, { removeDuplicates: true })
 }
 
-export const getMusicInfos = async (hashs: any[]): Promise<any[]> => {
+export const getMusicInfos = async(hashs: any[]): Promise<any[]> => {
   return await filterMusicInfoList(
-    await Promise.all(createGetMusicInfosTask(hashs)).then((data: any[][]) => data.flat())
+    await Promise.all(createGetMusicInfosTask(hashs)).then((data: any[][]) => data.flat()),
   )
 }
 
-export const getMusicInfoRaw = async (hash: string): Promise<any> => {
+export const getMusicInfoRaw = async(hash: string): Promise<any> => {
   return Promise.all(createGetMusicInfosTask([{ hash }])).then((data: any[][]) => data.flat()[0])
 }
 
-export const getMusicInfo = async (hash: string): Promise<any> => {
+export const getMusicInfo = async(hash: string): Promise<any> => {
   return getMusicInfos([{ hash }]).then((data: any[]) => data[0])
 }
 
-export const getMusicInfosByList = (list: any[]): Promise<any[]> => {
+export const getMusicInfosByList = async(list: any[]): Promise<any[]> => {
   return getMusicInfos(list.map((item: any) => ({ hash: item.hash })))
 }

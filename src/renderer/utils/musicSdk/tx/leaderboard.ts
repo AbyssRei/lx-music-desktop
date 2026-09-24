@@ -2,7 +2,7 @@ import { httpFetch } from '../../request'
 import { formatPlayTime, sizeFormate } from '../../index'
 import { formatSingerName } from '../utils'
 
-let boardList: { id: string; name: string; bangid: string }[] = [
+let boardList: Array<{ id: string, name: string, bangid: string }> = [
   { id: 'tx__4', name: '流行指数榜', bangid: '4' },
   { id: 'tx__26', name: '热歌榜', bangid: '26' },
   { id: 'tx__27', name: '新歌榜', bangid: '27' },
@@ -29,6 +29,8 @@ let boardList: { id: string; name: string; bangid: string }[] = [
   { id: 'tx__75', name: '有声榜', bangid: '75' },
   { id: 'tx__131', name: '校园音乐人排行榜', bangid: '131' },
 ]
+
+const periods: Record<string, { name: string, bangid: string, period: string }> = {}
 
 export default {
   limit: 300,
@@ -89,7 +91,7 @@ export default {
       bangid: '128',
     },
   ],
-  listDetailRequest(id: number, period: string | undefined, limit: number): Promise<any> {
+  async listDetailRequest(id: number, period: string | undefined, limit: number): Promise<any> {
     // console.log(id, period, limit)
     return httpFetch('https://u.y.qq.com/cgi-bin/musicu.fcg', {
       method: 'post',
@@ -120,24 +122,25 @@ export default {
       /<i class="play_cover__btn c_tx_link js_icon_play" data-listkey=".+?" data-listname=".+?" data-tid=".+?" data-date=".+?" .+?<\/i>/g,
     period: /data-listname="(.+?)" data-tid=".*?\/(.+?)" data-date="(.+?)" .+?<\/i>/,
   },
-  periods: {} as Record<string, { name: string; bangid: string; period: string }>,
+  periods,
+
   periodUrl: 'https://c.y.qq.com/node/pc/wk_v15/top.html',
   _requestBoardsObj: null as any,
   getBoardsData(): any {
     if (this._requestBoardsObj) this._requestBoardsObj.cancelHttp()
     this._requestBoardsObj = httpFetch(
-      'https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&uin=0&needNewCode=1&platform=h5'
+      'https://c.y.qq.com/v8/fcg-bin/fcg_myqq_toplist.fcg?g_tk=1928093487&inCharset=utf-8&outCharset=utf-8&notice=0&format=json&uin=0&needNewCode=1&platform=h5',
     )
     return this._requestBoardsObj.promise
   },
-  getData(url: string): Promise<any> {
+  async getData(url: string): Promise<any> {
     const requestDataObj = httpFetch(url)
     return requestDataObj.promise
   },
   filterData(rawList: any[]): any[] {
     // console.log(rawList)
     return rawList.map((item: any) => {
-      let types: { type: string; size: string }[] = []
+      let types: Array<{ type: string, size: string }> = []
       let _types: Record<string, { size: string }> = {}
       if (item.file.size_128mp3 !== 0) {
         let size = sizeFormate(item.file.size_128mp3)
@@ -214,8 +217,8 @@ export default {
       }
     })
   },
-  getPeriods(bangid: number): Promise<string | undefined> {
-    return this.getData(this.periodUrl).then(({ body: html }: any) => {
+  async getPeriods(bangid: number): Promise<string | undefined> {
+    return this.getData(this.periodUrl).then(async({ body: html }: any) => {
       let result = html.match(this.regExps.periodList)
       if (!result) return Promise.reject(new Error('get data failed'))
       result.forEach((item: string) => {
@@ -228,12 +231,12 @@ export default {
         }
       })
       const info = this.periods[bangid]
-      return info && info.period
+      return info?.period
     })
   },
-  filterBoardsData(rawList: any[]): { id: string; name: string; bangid: string }[] {
+  filterBoardsData(rawList: any[]): Array<{ id: string, name: string, bangid: string }> {
     // console.log(rawList)
-    let list: { id: string; name: string; bangid: string }[] = []
+    let list: Array<{ id: string, name: string, bangid: string }> = []
     for (const board of rawList) {
       // 排除 MV榜
       if (board.id == 201) continue
@@ -274,13 +277,13 @@ export default {
       source: 'tx',
     }
   },
-  getList(bangid: string | number, page: number, retryNum: number = 0): Promise<any> {
+  async getList(bangid: string | number, page: number, retryNum: number = 0): Promise<any> {
     if (++retryNum > 3) return Promise.reject(new Error('try max num'))
     bangid = parseInt(String(bangid))
     let info = this.periods[bangid]
     let p = info ? Promise.resolve(info.period) : this.getPeriods(bangid)
-    return p.then((period: string | undefined) => {
-      return this.listDetailRequest(bangid, period, this.limit).then((resp: any) => {
+    return p.then(async(period: string | undefined) => {
+      return this.listDetailRequest(bangid, period, this.limit).then(async(resp: any) => {
         if (resp.body.code !== 0) return this.getList(bangid, page, retryNum)
         return {
           total: resp.body.toplist.data.songInfoList.length,

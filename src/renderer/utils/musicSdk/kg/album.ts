@@ -23,7 +23,7 @@ export default {
           mid: '22945702112173152889429073101964063697',
           show_album_tag: 0,
         },
-      }
+      },
     )
     if (!albumInfoRequest) return Promise.reject(new Error('get album info failed.'))
     const albumInfo = albumInfoRequest[0]
@@ -43,7 +43,7 @@ export default {
    */
   async getAlbumDetail(id: any, page: number = 1, limit: number = 200): Promise<any> {
     const albumList = await createHttpFetch(
-      `http://mobiles.kugou.com/api/v3/album/song?version=9108&albumid=${id}&plat=0&pagesize=${limit}&area_code=0&page=${page}&with_res_tag=0`
+      `http://mobiles.kugou.com/api/v3/album/song?version=9108&albumid=${id}&plat=0&pagesize=${limit}&area_code=0&page=${page}&with_res_tag=0`,
     )
     if (!albumList.info) return Promise.reject(new Error('Get album list failed.'))
 

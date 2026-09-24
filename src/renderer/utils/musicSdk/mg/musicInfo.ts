@@ -2,7 +2,7 @@ import { sizeFormate, formatPlayTime } from '../../index'
 import { createHttpFetch } from './utils'
 import { formatSingerName } from '../utils'
 
-const createGetMusicInfosTask = (ids: string[]): Promise<any[]> => {
+const createGetMusicInfosTask = async(ids: string[]): Promise<any[]> => {
   let list: string[] = ids
   const tasks: string[][] = []
   while (list.length) {
@@ -12,20 +12,20 @@ const createGetMusicInfosTask = (ids: string[]): Promise<any[]> => {
   }
   let url = 'https://c.musicapp.migu.cn/MIGUM2.0/v1.0/content/resourceinfo.do?resourceType=2'
   return Promise.all(
-    tasks.map((task) =>
+    tasks.map(async(task) =>
       createHttpFetch(url, {
         method: 'POST',
         form: {
           resourceId: task.join('|'),
         },
-      }).then((data: any) => data.resource)
-    )
+      }).then((data: any) => data.resource),
+    ),
   )
 }
 
 export const filterMusicInfoList = (rawList: any[]): any[] => {
   // console.log(rawList)
-  let ids: Set<string> = new Set()
+  let ids = new Set<string>()
   const list: any[] = []
   rawList.forEach((item: any) => {
     if (!item.songId || ids.has(item.songId)) return
@@ -93,7 +93,7 @@ export const filterMusicInfoList = (rawList: any[]): any[] => {
 
 export const filterMusicInfoListV5 = (rawList: any[]): any[] => {
   // console.log(rawList)
-  let ids: Set<string> = new Set()
+  let ids = new Set<string>()
   const list: any[] = []
   rawList.forEach((item: any) => {
     if (!item.songId || ids.has(item.songId)) return
@@ -157,12 +157,12 @@ export const filterMusicInfoListV5 = (rawList: any[]): any[] => {
   return list
 }
 
-export const getMusicInfo = async (copyrightId: string): Promise<any> => {
+export const getMusicInfo = async(copyrightId: string): Promise<any> => {
   return getMusicInfos([copyrightId]).then((data: any[]) => data[0])
 }
 
-export const getMusicInfos = async (copyrightIds: string[]): Promise<any[]> => {
+export const getMusicInfos = async(copyrightIds: string[]): Promise<any[]> => {
   return filterMusicInfoList(
-    await createGetMusicInfosTask(copyrightIds).then((data: any[][]) => data.flat())
+    await createGetMusicInfosTask(copyrightIds).then((data: any[][]) => data.flat()),
   )
 }

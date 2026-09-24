@@ -2,7 +2,7 @@ import { generateKeyPair } from 'node:crypto'
 import { httpFetch, type RequestOptions } from '@main/utils/request'
 import { decodeData, encodeData } from '../utils'
 
-export const request = async (url: string, options: RequestOptions = {}) => {
+export const request = async(url: string, options: RequestOptions = {}) => {
   return httpFetch<string>(url, {
     ...options,
     timeout: options.timeout ?? 10000,
@@ -46,8 +46,8 @@ export const request = async (url: string, options: RequestOptions = {}) => {
 //   return Buffer.concat([decipher.update(Buffer.from(text, 'base64')), decipher.final()]).toString()
 // }
 
-export const generateRsaKey = async () =>
-  new Promise<{ publicKey: string; privateKey: string }>((resolve, reject) => {
+export const generateRsaKey = async() =>
+  new Promise<{ publicKey: string, privateKey: string }>((resolve, reject) => {
     generateKeyPair(
       'rsa',
       {
@@ -72,19 +72,19 @@ export const generateRsaKey = async () =>
           publicKey,
           privateKey,
         })
-      }
+      },
     )
   })
 
-export const encryptMsg = async (keyInfo: LX.Sync.ClientKeyInfo, msg: string): Promise<string> => {
+export const encryptMsg = async(keyInfo: LX.Sync.ClientKeyInfo, msg: string): Promise<string> => {
   return encodeData(msg)
   // if (!keyInfo) return ''
   // return aesEncrypt(msg, keyInfo.key, keyInfo.iv)
 }
 
-export const decryptMsg = async (
+export const decryptMsg = async(
   keyInfo: LX.Sync.ClientKeyInfo,
-  enMsg: string
+  enMsg: string,
 ): Promise<string> => {
   return decodeData(enMsg)
   // if (!keyInfo) return ''

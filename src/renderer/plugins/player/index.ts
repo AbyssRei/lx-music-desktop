@@ -456,7 +456,7 @@ export const setCurrentTime = (time: number) => {
 
 export const setMediaDeviceId = async(mediaDeviceId: string): Promise<void> => {
   if (!audio) return
-  const promises: Promise<void>[] = [audio.setSinkId(mediaDeviceId)]
+  const promises: Array<Promise<void>> = [audio.setSinkId(mediaDeviceId)]
   // 开启音效后声音走 AudioContext，需要同时设置其输出设备（Chromium 110+）
   if (audioContext) promises.push(audioContext.setSinkId(mediaDeviceId))
   await Promise.all(promises)

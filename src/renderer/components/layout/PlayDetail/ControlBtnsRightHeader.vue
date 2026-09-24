@@ -50,7 +50,7 @@ const handle_mouseout = (event: MouseEvent) => {
 
 let removeMaximizeListener: (() => void) | null = null
 
-onMounted(async () => {
+onMounted(async() => {
   window.app_event.on('focus', handle_focus)
   dom_btns.value.addEventListener('mouseover', handle_mouseover)
   dom_btns.value.addEventListener('mouseout', handle_mouseout)

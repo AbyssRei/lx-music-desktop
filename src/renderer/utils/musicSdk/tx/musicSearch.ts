@@ -8,7 +8,7 @@ export default {
   page: 0,
   allPage: 1,
   successCode: 0,
-  musicSearch(str: string, page: number, limit: number, retryNum: number = 0): Promise<any> {
+  async musicSearch(str: string, page: number, limit: number, retryNum: number = 0): Promise<any> {
     if (retryNum > 5) return Promise.reject(new Error('搜索失败'))
     // 移动端协议：模拟官方 Android 客户端请求，降低风控概率
     const searchRequest = signRequest({
@@ -87,7 +87,7 @@ export default {
     rawList.forEach((item: any) => {
       if (!item.file?.media_mid) return
 
-      let types: { type: string; size: string }[] = []
+      let types: Array<{ type: string, size: string }> = []
       let _types: Record<string, { size: string }> = {}
       const file: any = item.file
       if (file.size_128mp3 !== 0) {
@@ -167,9 +167,9 @@ export default {
     })
     return list
   },
-  search(str: string, page: number = 1, limit?: number | null): Promise<any> {
+  async search(str: string, page: number = 1, limit?: number | null): Promise<any> {
     if (limit == null) limit = this.limit
-    return this.musicSearch(str, page, limit).then((data: any) => {
+    return this.musicSearch(str, page, limit).then(async(data: any) => {
       let list = this.handleResult(data.body.item_song)
 
       this.total = data.meta.estimate_sum

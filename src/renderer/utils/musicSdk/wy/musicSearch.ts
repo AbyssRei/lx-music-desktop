@@ -23,7 +23,7 @@ export default {
         offset: limit * (page - 1),
         scene: 'normal',
         total: page == 1,
-        limit: limit,
+        limit,
       }),
     })
     return searchRequest.promise.then(({ body }: any) => body)
