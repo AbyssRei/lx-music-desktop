@@ -205,8 +205,9 @@ export default ({ isPlay, lyric, playProgress, isShowLyricProgressSetting, offse
       if (lines.length) {
         setLyric(lines)
       } else {
+        if (!dom_lyric.value) return
         cancelScrollFn = scrollTo(
-          dom_lyric.value!,
+          dom_lyric.value,
           0,
           300,
           () => {

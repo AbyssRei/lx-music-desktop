@@ -23,7 +23,11 @@ for (const api of apiSourceInfo) {
 const getAPI = (source: string): any => apiList[`${apiSource.value}_api_${source}`]
 
 const apis = (source: string): any => {
-  if (/^user_api/.test(apiSource.value!)) return userApi.apis[source as keyof typeof userApi.apis]
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- eslint 上下文（根 tsconfig）类型退化为 any 会误判断言多余，渲染进程 tsc 需要它们
+  if (/^user_api/.test(apiSource.value!)) {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion -- 同上
+    return userApi.apis[source as keyof typeof userApi.apis]
+  }
   let api = getAPI(source)
   if (api) return api
   throw new Error('Api is not found')
