@@ -84,12 +84,12 @@ const buildHttpPromose = (url: string, options: any) => {
       // console.log(body)
       obj.requestObj = null
       obj.cancelFn = null
-      if (err) return reject(err)
+      if (err) { reject(err); return }
       resolve(resp)
     }).then((ro) => {
       obj.requestObj = ro
       if (obj.isCancelled) obj.cancelHttp()
-    })
+    }).catch(reject)
   })
   return obj
 }
@@ -101,7 +101,7 @@ const buildHttpPromose = (url: string, options: any) => {
  */
 export const httpFetch = (url: string, options: any = { method: 'get' }) => {
   const requestObj = buildHttpPromose(url, options)
-  requestObj.promise = requestObj.promise.catch((err: any) => {
+  requestObj.promise = requestObj.promise.catch(async(err: any) => {
     // // console.log('出错', err)
     if (err.message === 'socket hang up') {
       // window.globalObj.apiSource = 'temp'
@@ -139,7 +139,7 @@ export const cancelHttp = (requestObj: any) => {
  * @param {*} cb 回调
  * @return {Number} index 用于取消请求
  */
-export const http = (url: string, options: any, cb?: any) => {
+export const http = async(url: string, options: any, cb?: any) => {
   if (typeof options === 'function') {
     cb = options
     options = {}
@@ -167,7 +167,7 @@ export const http = (url: string, options: any, cb?: any) => {
  * @param {*} callback 回调
  * @return {Number} index 用于取消请求
  */
-export const httpGet = (url: string, options: any, callback?: any) => {
+export const httpGet = async(url: string, options: any, callback?: any) => {
   if (typeof options === 'function') {
     callback = options
     options = {}
@@ -178,7 +178,7 @@ export const httpGet = (url: string, options: any, callback?: any) => {
   // })
 
   // console.log(`\n---send request-------${url}------------`)
-  return fetchData(url, 'get', options, function (err, resp, body) {
+  return fetchData(url, 'get', options, function(err, resp, body) {
     // options.isShowProgress && window.api.hideProgress()
     // console.log(`\n---response------${url}------------`)
     // console.log(body)
@@ -197,7 +197,7 @@ export const httpGet = (url: string, options: any, callback?: any) => {
  * @param {*} callback 回调
  * @return {Number} index 用于取消请求
  */
-export const httpPost = (url: string, data: any, options: any, callback?: any) => {
+export const httpPost = async(url: string, data: any, options: any, callback?: any) => {
   if (typeof options === 'function') {
     callback = options
     options = {}
@@ -209,7 +209,7 @@ export const httpPost = (url: string, data: any, options: any, callback?: any) =
   options.data = data
 
   // console.log(`\n---send request-------${url}------------`)
-  return fetchData(url, 'post', options, function (err, resp, body) {
+  return fetchData(url, 'post', options, function(err, resp, body) {
     // options.isShowProgress && window.api.hideProgress()
     // console.log(`\n---response------${url}------------`)
     // console.log(body)
@@ -228,14 +228,14 @@ export const httpPost = (url: string, data: any, options: any, callback?: any) =
  * @param {*} callback 回调
  * @return {Number} index 用于取消请求
  */
-export const http_jsonp = (url: string, options: any, callback?: any) => {
+export const http_jsonp = async(url: string, options: any, callback?: any) => {
   if (typeof options === 'function') {
     callback = options
     options = {}
   }
 
   let jsonpCallback = 'jsonpCallback'
-  if (url.indexOf('?') < 0) url += '?'
+  if (!url.includes('?')) url += '?'
   url += `&${options.jsonpCallback}=${jsonpCallback}`
 
   options.format = 'script'
@@ -246,7 +246,7 @@ export const http_jsonp = (url: string, options: any, callback?: any) => {
   // })
 
   // console.log(`\n---send request-------${url}------------`)
-  return fetchData(url, 'get', options, function (err, resp, body) {
+  return fetchData(url, 'get', options, function(err, resp, body) {
     // options.isShowProgress && window.api.hideProgress()
     // console.log(`\n---response------${url}------------`)
     // console.log(body)
@@ -260,21 +260,21 @@ export const http_jsonp = (url: string, options: any, callback?: any) => {
   })
 }
 
-const handleDeflateRaw = (data: string): Promise<Buffer> =>
+const handleDeflateRaw = async(data: string): Promise<Buffer> =>
   new Promise((resolve, reject) => {
     deflateRaw(data, (err, buf) => {
-      if (err) return reject(err)
+      if (err) { reject(err); return }
       resolve(buf)
     })
   })
 
 const regx = /(?:\d\w)+/g
 
-const fetchData = async (
+const fetchData = async(
   url: string,
   method: string,
-  { headers = {} as Record<string, any>, format = 'json', timeout = 15000, ...options }: any,
-  callback: (err: Error | null, resp?: any, body?: any) => void
+  { headers = {}, format = 'json', timeout = 15000, ...options }: any,
+  callback: (err: Error | null, resp?: any, body?: any) => void,
 ) => {
   // // console.log(url, options)
   // console.log('---start---', url)
@@ -295,11 +295,11 @@ const fetchData = async (
       `${(
         await handleDeflateRaw(
           Buffer.from(JSON.stringify(`${path}${v}`.match(regx), null, 1).concat(v)).toString(
-            'base64'
-          )
+            'base64',
+          ),
         )
       ).toString('hex')}&${parseInt(v)}${v2}`
-    delete headers[bHh]
+    Reflect.deleteProperty(headers, bHh)
   }
   return request(
     url,
@@ -312,16 +312,16 @@ const fetchData = async (
       json: format === 'json',
     },
     (err, resp, body) => {
-      if (err) return callback(err, null)
+      if (err) { callback(err, null); return }
       callback(null, resp, body)
-    }
+    },
   )
 }
 
-export const checkUrl = (url: string, options: any = {}): Promise<void> => {
+export const checkUrl = async(url: string, options: any = {}): Promise<void> => {
   return new Promise((resolve, reject) => {
-    fetchData(url, 'head', options, (err: Error | null, resp?: any) => {
-      if (err) return reject(err)
+    void fetchData(url, 'head', options, (err: Error | null, resp?: any) => {
+      if (err) { reject(err); return }
       if (resp.statusCode === 200) {
         resolve()
       } else {
