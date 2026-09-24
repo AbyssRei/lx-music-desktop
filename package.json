@@ -167,7 +167,7 @@
     "webpack-merge": "^6.0.1"
   },
   "dependencies": {
-    "@simonwep/pickr": "1.9.1",
+    "@simonwep/pickr": "^1.10.2",
     "better-sqlite3": "^13.0.3",
     "bufferutil": "^4.1.0",
     "comlink": "~4.3.1",
