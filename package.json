@@ -160,7 +160,7 @@
     "typescript": "5.9.3",
     "vue-eslint-parser": "^9.4.3",
     "vue-loader": "^17.4.2",
-    "webpack": "5.106.2",
+    "webpack": "5.111.1",
     "webpack-cli": "^7.2.3",
     "webpack-dev-server": "5.2.6",
     "webpack-hot-middleware": "github:lyswhut/webpack-hot-middleware#329c4375134b89d39da23a56a94db651247c74a1",
