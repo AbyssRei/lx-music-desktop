@@ -9,7 +9,7 @@ let lastFetchTime: number = 0
 const CACHE_DURATION: number = 3600000 // 1小时缓存
 
 // Gitcode配置
-export const GITCODE_CONFIG: { owner: string; repo: string; token: string; dbUrl: string | null } = {
+export const GITCODE_CONFIG: { owner: string, repo: string, token: string, dbUrl: string | null } = {
   owner: 'ikun_0014', // Gitcode用户名
   repo: 'music', // 仓库名
   token: 'WzsER9knWNgC_4tjeJCtHKcN', // 访问令牌
@@ -20,7 +20,7 @@ GITCODE_CONFIG.dbUrl = `https://api.gitcode.com/api/v5/repos/${GITCODE_CONFIG.ow
 /**
  * 加载音乐数据库
  */
-export const loadDatabase = async (forceReload: boolean = false): Promise<any[]> => {
+export const loadDatabase = async(forceReload: boolean = false): Promise<any[]> => {
   const now = Date.now()
 
   // 检查缓存是否有效
@@ -32,15 +32,13 @@ export const loadDatabase = async (forceReload: boolean = false): Promise<any[]>
     const requestObj = httpFetch(GITCODE_CONFIG.dbUrl!)
     const { body } = await requestObj.promise
 
-    if (typeof body === 'string') {
-      musicDatabase = JSON.parse(body)
-    } else {
-      musicDatabase = body
-    }
-
+    const database: any[] = typeof body === 'string' ? JSON.parse(body) : body
+    // eslint-disable-next-line require-atomic-updates -- 模块级单例缓存，顺序赋值无并发改写风险
+    musicDatabase = database
+    // eslint-disable-next-line require-atomic-updates
     lastFetchTime = now
-    console.log(`成功加载 ${musicDatabase!.length} 首歌曲`)
-    return musicDatabase!
+    console.log(`成功加载 ${database.length} 首歌曲`)
+    return database
   } catch (error) {
     console.error('加载数据库失败:', error)
     return []
@@ -104,7 +102,7 @@ export const getInterval = (item: any): string => {
 /**
  * 获取音质类型
  */
-export const getTypes = (item: any): { type: string; size: string }[] => {
+export const getTypes = (item: any): Array<{ type: string, size: string }> => {
   const types = []
   const format = item.format?.toLowerCase()
 
@@ -153,7 +151,7 @@ export const formatSize = (bytes: number): string => {
 
 export const objStr2JSON = (str: string): any => {
   return JSON.parse(
-    str.replace(/('(?=(,\s*')))|('(?=:))|((?<=([:,]\s*))')|((?<={)')|('(?=}))/g, '"')
+    str.replace(/('(?=(,\s*')))|('(?=:))|((?<=([:,]\s*))')|((?<={)')|('(?=}))/g, '"'),
   )
 }
 
@@ -181,7 +179,7 @@ export const wbdCrypto = {
   aesMode: 'aes-128-ecb',
   aesKey: Buffer.from(
     [112, 87, 39, 61, 199, 250, 41, 191, 57, 68, 45, 114, 221, 94, 140, 228] as any,
-    'binary'
+    'binary',
   ),
   aesIv: '',
   appId: 'y67sprxhhpws',
@@ -198,7 +196,7 @@ export const wbdCrypto = {
     const time = Date.now()
 
     const encodeData = createAesEncrypt(data, this.aesMode, this.aesKey, this.aesIv).toString(
-      'base64'
+      'base64',
     )
     const sign = this.createSign(encodeData, time)
 
